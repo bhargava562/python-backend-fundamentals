@@ -1,0 +1,73 @@
+### VALID: Create Book
+POST http://127.0.0.1:8000/books/
+Content-Type: application/json
+
+{
+  "title": "Clean Code",
+  "author": "Robert Martin",
+  "isbn": "12345",
+  "price": 450
+}
+
+### INVALID: Duplicate ISBN
+POST http://127.0.0.1:8000/books/
+Content-Type: application/json
+
+{
+  "title": "Another Book",
+  "author": "Someone",
+  "isbn": "12345",
+  "price": 300
+}
+
+### INVALID: Negative price
+POST http://127.0.0.1:8000/books/
+Content-Type: application/json
+
+{
+  "title": "Bad Book",
+  "author": "Test",
+  "isbn": "99999",
+  "price": -50
+}
+
+### INVALID: Missing fields
+POST http://127.0.0.1:8000/books/
+Content-Type: application/json
+
+{
+  "title": "Incomplete"
+}
+
+### VALID: Get all books
+GET http://127.0.0.1:8000/books/
+
+### INVALID: Get non-existing book
+GET http://127.0.0.1:8000/books/99
+
+### INVALID: Update non-existing book
+PUT http://127.0.0.1:8000/books/50
+Content-Type: application/json
+
+{
+  "title": "Test",
+  "author": "Test",
+  "isbn": "777",
+  "price": 100
+}
+
+### VALID: Patch Book
+PATCH http://127.0.0.1:8000/books/0
+Content-Type: application/json
+
+{
+  "price": 550
+}
+
+### INVALID: Patch with wrong data type
+PATCH http://127.0.0.1:8000/books/0
+Content-Type: application/json
+
+{
+  "price": "expensive"
+}
