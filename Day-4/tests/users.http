@@ -1,0 +1,48 @@
+### VALID: Create User
+POST http://127.0.0.1:8000/users/
+Content-Type: application/json
+
+{
+  "username": "rakshita",
+  "email": "rak@gmail.com",
+  "age": 21
+}
+
+### INVALID: Duplicate email
+POST http://127.0.0.1:8000/users/
+Content-Type: application/json
+
+{
+  "username": "rak2",
+  "email": "rak@gmail.com",
+  "age": 25
+}
+
+### INVALID: Wrong email format
+POST http://127.0.0.1:8000/users/
+Content-Type: application/json
+
+{
+  "username": "bademail",
+  "email": "not-an-email",
+  "age": 22
+}
+
+### INVALID: Age too high
+POST http://127.0.0.1:8000/users/
+Content-Type: application/json
+
+{
+  "username": "olduser",
+  "email": "old@gmail.com",
+  "age": 200
+}
+
+### VALID: Get users
+GET http://127.0.0.1:8000/users/
+
+### INVALID: Get non-existing user
+GET http://127.0.0.1:8000/users/99
+
+### INVALID: Delete non-existing user
+DELETE http://127.0.0.1:8000/users/50
