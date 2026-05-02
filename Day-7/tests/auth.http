@@ -1,0 +1,127 @@
+### Register a normal user
+POST http://127.0.0.1:8000/auth/register
+Content-Type: application/json
+
+{
+  "username": "johndoe",
+  "email": "john@example.com",
+  "password": "mysecretpassword",
+  "role": "user"
+}
+
+###
+### Register an admin
+POST http://127.0.0.1:8000/auth/register
+Content-Type: application/json
+
+{
+  "username": "admin_jane",
+  "email": "jane@admin.com",
+  "password": "supersecure",
+  "role": "admin"
+}
+
+###
+### Register a moderator
+POST http://127.0.0.1:8000/auth/register
+Content-Type: application/json
+
+{
+  "username": "moderator_bob",
+  "email": "bob@moderator.com",
+  "password": "moderatorpass",
+  "role": "moderator"
+}
+
+###
+### Login as normal user (Note: using form-urlencoded for OAuth2)
+POST http://127.0.0.1:8000/auth/login
+Content-Type: application/x-www-form-urlencoded
+
+username=johndoe&password=mysecretpassword
+
+###
+### Login as admin
+POST http://127.0.0.1:8000/auth/login
+Content-Type: application/x-www-form-urlencoded
+
+username=admin_jane&password=supersecure
+
+###
+### Login as moderator
+POST http://127.0.0.1:8000/auth/login
+Content-Type: application/x-www-form-urlencoded
+
+username=moderator_bob&password=moderatorpass
+
+###
+### Refresh Access Token (Copy refresh_token from login response)
+POST http://127.0.0.1:8000/auth/refresh
+Content-Type: application/json
+
+{
+  "refresh_token": "YOUR_REFRESH_TOKEN_HERE"
+}
+
+###
+### Get Current User (Copy the access_token from login and replace 'YOUR_TOKEN')
+GET http://127.0.0.1:8000/users/me
+Authorization: Bearer YOUR_ACCESS_TOKEN
+
+###
+### Try Moderator Route as Normal User (Should return 403 Forbidden)
+GET http://127.0.0.1:8000/users/moderator-panel
+Authorization: Bearer USER_TOKEN
+
+###
+### Access Moderator Panel as Moderator (Success - 200)
+GET http://127.0.0.1:8000/users/moderator-panel
+Authorization: Bearer MODERATOR_TOKEN
+
+###
+### Access Moderator Panel as Admin (Success - 200)
+GET http://127.0.0.1:8000/users/moderator-panel
+Authorization: Bearer ADMIN_TOKEN
+
+###
+### Try Admin Route as Normal User (Should return 403 Forbidden)
+GET http://127.0.0.1:8000/users/admin-dashboard
+Authorization: Bearer USER_TOKEN
+
+###
+### Try Admin Route as Moderator (Should return 403 Forbidden)
+GET http://127.0.0.1:8000/users/admin-dashboard
+Authorization: Bearer MODERATOR_TOKEN
+
+###
+### Access Admin Dashboard as Admin (Success - 200)
+GET http://127.0.0.1:8000/users/admin-dashboard
+Authorization: Bearer ADMIN_TOKEN
+
+###
+### Test Missing Token (Should return 401 Unauthorized)
+GET http://127.0.0.1:8000/users/me
+
+###
+### Test Invalid Token (Should return 401 Unauthorized)
+GET http://127.0.0.1:8000/users/me
+Authorization: Bearer invalid_token_here
+
+###
+### Test Wrong Password (Should return 401 Unauthorized)
+POST http://127.0.0.1:8000/auth/login
+Content-Type: application/x-www-form-urlencoded
+
+username=johndoe&password=wrongpassword
+
+###
+### Test Duplicate Username Registration (Should return 400 Bad Request)
+POST http://127.0.0.1:8000/auth/register
+Content-Type: application/json
+
+{
+  "username": "johndoe",
+  "email": "another@example.com",
+  "password": "anotherpass",
+  "role": "user"
+}
