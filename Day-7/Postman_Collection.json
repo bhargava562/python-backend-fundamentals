@@ -1,0 +1,623 @@
+{
+	"info": {
+		"name": "Day 7 - FastAPI Authentication & Authorization",
+		"description": "Complete authentication and authorization flow with JWT tokens",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Register Normal User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"johndoe\",\n  \"email\": \"john@example.com\",\n  \"password\": \"mysecretpassword\",\n  \"role\": \"user\"\n}"
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/auth/register",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"auth",
+								"register"
+							]
+						},
+						"description": "Register a new normal user with hashed password"
+					},
+					"response": []
+				},
+				{
+					"name": "Register Admin User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"admin_jane\",\n  \"email\": \"jane@admin.com\",\n  \"password\": \"supersecure\",\n  \"role\": \"admin\"\n}"
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/auth/register",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"auth",
+								"register"
+							]
+						},
+						"description": "Register a new admin user"
+					},
+					"response": []
+				},
+				{
+					"name": "Register Moderator User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"moderator_bob\",\n  \"email\": \"bob@moderator.com\",\n  \"password\": \"moderatorpass\",\n  \"role\": \"moderator\"\n}"
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/auth/register",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"auth",
+								"register"
+							]
+						},
+						"description": "Register a new moderator user"
+					},
+					"response": []
+				},
+				{
+					"name": "Login User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "johndoe",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "mysecretpassword",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/auth/login",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"auth",
+								"login"
+							]
+						},
+						"description": "Login and get access token + refresh token"
+					},
+					"response": []
+				},
+				{
+					"name": "Login Admin",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "admin_jane",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "supersecure",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/auth/login",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"auth",
+								"login"
+							]
+						},
+						"description": "Login as admin"
+					},
+					"response": []
+				},
+				{
+					"name": "Login Moderator",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "moderator_bob",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "moderatorpass",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/auth/login",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"auth",
+								"login"
+							]
+						},
+						"description": "Login as moderator"
+					},
+					"response": []
+				},
+				{
+					"name": "Refresh Access Token",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"refresh_token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\"\n}"
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/auth/refresh",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"auth",
+								"refresh"
+							]
+						},
+						"description": "Refresh the access token using refresh token. Copy refresh_token from login response."
+					},
+					"response": []
+				}
+			],
+			"description": "Authentication endpoints: register, login, and token refresh"
+		},
+		{
+			"name": "Protected Routes - User",
+			"item": [
+				{
+					"name": "Get Current User Profile",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer YOUR_ACCESS_TOKEN",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://127.0.0.1:8000/users/me",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"users",
+								"me"
+							]
+						},
+						"description": "Get current logged-in user profile. Replace YOUR_ACCESS_TOKEN with token from login."
+					},
+					"response": []
+				}
+			],
+			"description": "User endpoints accessible to any authenticated user"
+		},
+		{
+			"name": "Protected Routes - Moderator",
+			"item": [
+				{
+					"name": "Get Moderator Panel (Success)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer MODERATOR_OR_ADMIN_TOKEN",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://127.0.0.1:8000/users/moderator-panel",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"users",
+								"moderator-panel"
+							]
+						},
+						"description": "Access moderator panel (requires moderator or admin role)"
+					},
+					"response": []
+				},
+				{
+					"name": "Try Moderator Panel as Normal User (403 Forbidden)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer USER_TOKEN",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://127.0.0.1:8000/users/moderator-panel",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"users",
+								"moderator-panel"
+							]
+						},
+						"description": "Should return 403 Forbidden - insufficient permissions"
+					},
+					"response": []
+				}
+			],
+			"description": "Moderator-only endpoints (accessible to moderator and admin roles)"
+		},
+		{
+			"name": "Protected Routes - Admin",
+			"item": [
+				{
+					"name": "Get Admin Dashboard (Success)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer ADMIN_TOKEN",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://127.0.0.1:8000/users/admin-dashboard",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"users",
+								"admin-dashboard"
+							]
+						},
+						"description": "Access admin dashboard (requires admin role)"
+					},
+					"response": []
+				},
+				{
+					"name": "Try Admin Dashboard as Normal User (403 Forbidden)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer USER_TOKEN",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://127.0.0.1:8000/users/admin-dashboard",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"users",
+								"admin-dashboard"
+							]
+						},
+						"description": "Should return 403 Forbidden - insufficient permissions (normal user trying to access admin area)"
+					},
+					"response": []
+				},
+				{
+					"name": "Try Admin Dashboard as Moderator (403 Forbidden)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer MODERATOR_TOKEN",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://127.0.0.1:8000/users/admin-dashboard",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"users",
+								"admin-dashboard"
+							]
+						},
+						"description": "Should return 403 Forbidden - insufficient permissions (moderator trying to access admin area)"
+					},
+					"response": []
+				}
+			],
+			"description": "Admin-only endpoints (accessible to admin role only)"
+		},
+		{
+			"name": "Error Scenarios",
+			"item": [
+				{
+					"name": "Login with Wrong Password (401 Unauthorized)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "johndoe",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "wrongpassword",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/auth/login",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"auth",
+								"login"
+							]
+						},
+						"description": "Should return 401 Unauthorized"
+					},
+					"response": []
+				},
+				{
+					"name": "Access Protected Route Without Token (401 Unauthorized)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8000/users/me",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"users",
+								"me"
+							]
+						},
+						"description": "Should return 401 Unauthorized - missing token"
+					},
+					"response": []
+				},
+				{
+					"name": "Access Protected Route with Invalid Token (401 Unauthorized)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer invalid_token_here",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://127.0.0.1:8000/users/me",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"users",
+								"me"
+							]
+						},
+						"description": "Should return 401 Unauthorized - invalid token"
+					},
+					"response": []
+				},
+				{
+					"name": "Register Duplicate Username (400 Bad Request)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"johndoe\",\n  \"email\": \"duplicate@example.com\",\n  \"password\": \"anotherpassword\",\n  \"role\": \"user\"\n}"
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/auth/register",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"auth",
+								"register"
+							]
+						},
+						"description": "Should return 400 Bad Request - username already exists"
+					},
+					"response": []
+				}
+			],
+			"description": "Test various error scenarios and edge cases"
+		}
+	]
+}
