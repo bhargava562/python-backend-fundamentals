@@ -22,6 +22,9 @@ python-backend-fundamentals/
 ├── Day-3/ → SQL Mastery (Schema Design, Joins, Transactions, Normalization)
 ├── Day-4/ → FastAPI Basics (REST API CRUD, Path/Query Params, In-memory DB)
 ├── Day-5/ → Pydantic Mastery (Advanced Validation, CRUD Patterns, Nested Models)
+├── Day-6/ → ORM & Advanced CRUD (SQLAlchemy, Database Models, Query Optimization)
+├── Day-7/ → JWT Authentication (Token Management, Role-Based Access, Auth Routes)
+├── Day-8/ → OAuth 2.0 Integration (Google OAuth, Session Management, Security Hardening)
 └── README.md ← (You are here)
 ```
 
@@ -36,6 +39,9 @@ python-backend-fundamentals/
 | [Day 3](./Day-3/README.md) | SQL Schema · Joins · Aggregations · Advanced CTEs · Transactions · 3NF | ✅ Complete |
 | [Day 4](./Day-4/README.md) | FastAPI CRUD · Swagger UI · Query Parameters · Global Error Handling | ✅ Complete |
 | [Day 5](./Day-5/README.md) | Pydantic v2 · Custom Validators · Field Aliases · Nested Complex Models | ✅ Complete |
+| [Day 6](./Day-6/README.md) | SQLAlchemy ORM · Database Models · Relationships · Query Optimization · CRUD Operations | ✅ Complete |
+| [Day 7](./Day-7/README.md) | JWT Tokens · Access/Refresh Tokens · Role-Based Access · Auth Routes · Security Best Practices | ✅ Complete |
+| [Day 8](./Day-8/README.md) | OAuth 2.0 · Google OAuth Integration · Session Management · Credential Protection · Security Hardening | ✅ Complete |
 
 ---
 
