@@ -1,0 +1,12 @@
+fastapi
+uvicorn
+authlib
+httpx
+python-dotenv
+itsdangerous
+jinja2
+python-jose[cryptography]
+passlib[bcrypt]
+pytest
+pytest-asyncio
+pytest-cov
