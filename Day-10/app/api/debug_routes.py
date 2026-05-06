@@ -31,13 +31,12 @@ async def slow_endpoint():
 async def intentional_bug():
     """Demonstrates error handling with a deliberate bug"""
     logger.warning("A user triggered the intentional bug endpoint!")
-    try:
-        # Simulating a Division by Zero error to trigger the global exception handler
-        faulty_calculation = 100 / 0
-        return {"result": faulty_calculation}
-    except ZeroDivisionError as e:
-        logger.error(f"Division by zero error caught: {str(e)}")
-        raise HTTPException(status_code=500, detail="Mathematical error occurred")
+    
+    # Do NOT use try-except here. 
+    # Let it crash so the global_exception_handler can catch it!
+    faulty_calculation = 100 / 0 
+    
+    return {"result": faulty_calculation}
 
 @router.get("/health")
 async def health_check():
