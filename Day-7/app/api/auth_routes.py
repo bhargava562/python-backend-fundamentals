@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from datetime import timedelta
 from jose import jwt, JWTError
+from pydantic import BaseModel
 from app.schemas import UserCreate, UserResponse, Token, TokenResponse, RefreshTokenRequest
 from app.core.security import (
     get_password_hash, 
@@ -13,6 +14,10 @@ from app.core.config import ACCESS_TOKEN_EXPIRE_MINUTES, SECRET_KEY, ALGORITHM
 from app.fake_db import fake_users_db
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
+
+class LoginRequest(BaseModel):
+    username: str
+    password: str
 
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 def register(user: UserCreate):
@@ -33,12 +38,11 @@ def register(user: UserCreate):
     return user_db_obj
 
 @router.post("/login", response_model=TokenResponse)
-def login(form_data: OAuth2PasswordRequestForm = Depends()):
-    """Login endpoint that returns both access and refresh tokens."""
-    # OAuth2PasswordRequestForm uses form-data instead of JSON
-    user = fake_users_db.get(form_data.username)
+def login(credentials: LoginRequest):
+    """Login endpoint updated to accept standard JSON."""
+    user = fake_users_db.get(credentials.username)
     
-    if not user or not verify_password(form_data.password, user["hashed_password"]):
+    if not user or not verify_password(credentials.password, user["hashed_password"]):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",
@@ -47,13 +51,11 @@ def login(form_data: OAuth2PasswordRequestForm = Depends()):
     
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     
-    # Store username in 'sub' (subject) and custom 'role' claim
     access_token = create_access_token(
         data={"sub": user["username"], "role": user["role"]}, 
         expires_delta=access_token_expires
     )
     
-    # Create refresh token
     refresh_token = create_refresh_token(
         data={"sub": user["username"]}
     )
@@ -62,7 +64,7 @@ def login(form_data: OAuth2PasswordRequestForm = Depends()):
         "access_token": access_token,
         "refresh_token": refresh_token,
         "token_type": "bearer",
-        "expires_in": ACCESS_TOKEN_EXPIRE_MINUTES * 60  # in seconds
+        "expires_in": ACCESS_TOKEN_EXPIRE_MINUTES * 60
     }
 
 @router.post("/refresh", response_model=TokenResponse)
