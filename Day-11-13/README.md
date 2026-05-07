@@ -27,7 +27,80 @@ app/
 
 ---
 
-## 🛣️ API Endpoint Specification (Blueprint)
+## � Database ERD
+
+```mermaid
+erDiagram
+    USERS ||--o{ ORDERS : places
+    USERS ||--o{ REVIEWS : writes
+    USERS ||--o| CART : owns
+    CATEGORIES ||--o{ PRODUCTS : contains
+    PRODUCTS ||--o{ REVIEWS : receives
+    PRODUCTS ||--o{ CART_ITEMS : added_to
+    PRODUCTS ||--o{ ORDER_ITEMS : part_of
+    CART ||--o{ CART_ITEMS : holds
+    ORDERS ||--o{ ORDER_ITEMS : includes
+
+    USERS {
+        int id PK
+        string username
+        string email
+        string password
+        string role
+        timestamp created_at
+    }
+    CATEGORIES {
+        int id PK
+        string name
+        text description
+    }
+    PRODUCTS {
+        int id PK
+        string name
+        text description
+        float price
+        int stock
+        int category_id FK
+        timestamp created_at
+    }
+    CART {
+        int id PK
+        int user_id FK
+        timestamp created_at
+    }
+    CART_ITEMS {
+        int id PK
+        int cart_id FK
+        int product_id FK
+        int quantity
+    }
+    ORDERS {
+        int id PK
+        int user_id FK
+        float total
+        string status
+        timestamp created_at
+    }
+    ORDER_ITEMS {
+        int id PK
+        int order_id FK
+        int product_id FK
+        int quantity
+        float price
+    }
+    REVIEWS {
+        int id PK
+        int user_id FK
+        int product_id FK
+        int rating
+        text comment
+        timestamp created_at
+    }
+```
+
+---
+
+## �🛣️ API Endpoint Specification (Blueprint)
 
 ### Authentication
 * `POST /auth/register` - Register a new user
