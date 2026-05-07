@@ -1,9 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordRequestForm
 from datetime import timedelta
-from jose import jwt, JWTError
 from pydantic import BaseModel
-from app.schemas import UserCreate, UserResponse, Token, TokenResponse, RefreshTokenRequest
+from jose import jwt, JWTError
+from app.schemas import UserCreate, UserResponse, TokenResponse, RefreshTokenRequest
 from app.core.security import (
     get_password_hash, 
     verify_password, 
@@ -45,20 +44,15 @@ def login(credentials: LoginRequest):
     if not user or not verify_password(credentials.password, user["hashed_password"]):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
-            headers={"WWW-Authenticate": "Bearer"},
+            detail="Incorrect username or password"
         )
     
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    
     access_token = create_access_token(
         data={"sub": user["username"], "role": user["role"]}, 
         expires_delta=access_token_expires
     )
-    
-    refresh_token = create_refresh_token(
-        data={"sub": user["username"]}
-    )
+    refresh_token = create_refresh_token(data={"sub": user["username"]})
     
     return {
         "access_token": access_token,
@@ -69,30 +63,23 @@ def login(credentials: LoginRequest):
 
 @router.post("/refresh", response_model=TokenResponse)
 def refresh_access_token(request: RefreshTokenRequest):
-    """Refresh the access token using a valid refresh token."""
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Invalid or expired refresh token",
-        headers={"WWW-Authenticate": "Bearer"},
+        detail="Invalid or expired refresh token"
     )
-    
     try:
-        # Decode the refresh token
         payload = jwt.decode(request.refresh_token, SECRET_KEY, algorithms=[ALGORITHM])
         username: str = payload.get("sub")
         token_type: str = payload.get("type")
-        
         if username is None or token_type != "refresh":
             raise credentials_exception
     except JWTError:
         raise credentials_exception
     
-    # Fetch user from DB
     user = fake_users_db.get(username)
     if user is None:
         raise credentials_exception
     
-    # Create new access token
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     new_access_token = create_access_token(
         data={"sub": user["username"], "role": user["role"]},
