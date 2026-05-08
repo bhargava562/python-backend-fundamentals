@@ -25,7 +25,9 @@ python-backend-fundamentals/
 ├── Day-6/ → ORM & Advanced CRUD (SQLAlchemy, Database Models, Query Optimization)
 ├── Day-7/ → JWT Authentication (Token Management, Role-Based Access, Auth Routes)
 ├── Day-8/ → OAuth 2.0 Integration (Google OAuth, Session Management, Security Hardening)
-└── README.md ← (You are here)
+├── Day-9/ → Advanced Query Optimization (Indexing, N+1 Queries, Caching Strategies)
+├── Day-10/ → Error Handling & Logging (Structured Logs, Error Recovery, Monitoring)
+└── Day-11-13/ → E-Commerce Backend (FastAPI + PostgreSQL, Authentication, Product Management)
 ```
 
 ---
@@ -42,6 +44,9 @@ python-backend-fundamentals/
 | [Day 6](./Day-6/README.md) | SQLAlchemy ORM · Database Models · Relationships · Query Optimization · CRUD Operations | ✅ Complete |
 | [Day 7](./Day-7/README.md) | JWT Tokens · Access/Refresh Tokens · Role-Based Access · Auth Routes · Security Best Practices | ✅ Complete |
 | [Day 8](./Day-8/README.md) | OAuth 2.0 · Google OAuth Integration · Session Management · Credential Protection · Security Hardening | ✅ Complete |
+| [Day 9](./Day-9/README.md) | Query Optimization · N+1 Problem · Database Indexing · Caching Strategies | ✅ Complete |
+| [Day 10](./Day-10/README.md) | Error Handling · Structured Logging · Monitoring · Recovery Strategies | ✅ Complete |
+| [Day 11-13](./Day-11-13/README.md) | E-Commerce Backend · PostgreSQL · JWT Auth · Product Management · REST API | ✅ Complete |
 
 ---
 
