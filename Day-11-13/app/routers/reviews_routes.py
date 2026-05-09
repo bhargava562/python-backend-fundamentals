@@ -7,9 +7,13 @@ from typing import List, Optional
 from app.database.config import get_db
 from app.auth.security import get_current_user
 from app.models.models import User, Product, Review, Order, OrderItem
-from app.schemas.schemas import ReviewCreate, ReviewResponse
+from app.schemas.schemas import ReviewCreate, ReviewResponse, ProductReviewsResponse
 
+# Router for product-level review operations (/products/{product_id}/reviews)
 router = APIRouter(prefix="/products", tags=["Reviews"])
+
+# Router for individual review operations (/reviews/{review_id})
+review_router = APIRouter(prefix="/reviews", tags=["Reviews"])
 
 
 @router.post("/{product_id}/reviews", response_model=ReviewResponse, status_code=status.HTTP_201_CREATED)
@@ -90,7 +94,7 @@ def create_review(
     return new_review
 
 
-@router.get("/{product_id}/reviews", response_model=dict)
+@router.get("/{product_id}/reviews", response_model=ProductReviewsResponse)
 def get_product_reviews(
     product_id: int,
     skip: int = Query(0, ge=0),
@@ -106,10 +110,11 @@ def get_product_reviews(
         skip: Number of reviews to skip (default: 0)
         limit: Number of reviews to return (default: 10, max: 100)
         
-    Returns: Dictionary with:
+    Returns: ProductReviewsResponse with:
         - reviews: List of ReviewResponse
         - average_rating: Average rating (null if no reviews)
         - total_reviews: Total number of reviews
+        - product_id: Product ID
     
     Raises:
         404: Product not found
@@ -139,15 +144,15 @@ def get_product_reviews(
         Review.product_id == product_id
     ).count()
     
-    return {
-        "reviews": reviews,
-        "average_rating": average_rating,
-        "total_reviews": total_reviews,
-        "product_id": product_id
-    }
+    return ProductReviewsResponse(
+        reviews=reviews,
+        average_rating=average_rating,
+        total_reviews=total_reviews,
+        product_id=product_id
+    )
 
 
-@router.put("/reviews/{review_id}", response_model=ReviewResponse)
+@review_router.put("/{review_id}", response_model=ReviewResponse)
 def update_review(
     review_id: int,
     updated_review: ReviewCreate,
@@ -193,7 +198,7 @@ def update_review(
     return review
 
 
-@router.delete("/reviews/{review_id}", status_code=status.HTTP_204_NO_CONTENT)
+@review_router.delete("/{review_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_review(
     review_id: int,
     current_user: User = Depends(get_current_user),
@@ -229,7 +234,7 @@ def delete_review(
     db.commit()
 
 
-@router.get("/reviews/{review_id}", response_model=ReviewResponse)
+@review_router.get("/{review_id}", response_model=ReviewResponse)
 def get_review(
     review_id: int,
     db: Session = Depends(get_db)

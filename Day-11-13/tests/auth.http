@@ -11,8 +11,7 @@ Content-Type: {{contentType}}
 {
   "email": "admin@ecommerce.com",
   "username": "admin_user",
-  "password": "Admin123",
-  "role": "admin"
+  "password": "Admin123"
 }
 
 ###
@@ -23,8 +22,7 @@ Content-Type: {{contentType}}
 {
   "email": "customer@ecommerce.com",
   "username": "customer_user",
-  "password": "Customer123",
-  "role": "customer"
+  "password": "Customer123"
 }
 
 ###
@@ -35,6 +33,7 @@ Content-Type: {{contentType}}
 
 {
   "email": "admin@ecommerce.com",
+  "username": "admin_user",
   "password": "Admin123"
 }
 
@@ -50,6 +49,7 @@ Content-Type: {{contentType}}
 
 {
   "email": "customer@ecommerce.com",
+  "username": "customer_user",
   "password": "Customer123"
 }
 

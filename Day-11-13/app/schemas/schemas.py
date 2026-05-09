@@ -205,6 +205,13 @@ class ReviewResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+class ProductReviewsResponse(BaseModel):
+    reviews: List[ReviewResponse] = []
+    average_rating: Optional[float] = None
+    total_reviews: int = 0
+    product_id: int
+
+
 # ============= AUTH SCHEMAS =============
 
 class Token(BaseModel):

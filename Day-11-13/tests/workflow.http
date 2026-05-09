@@ -9,10 +9,9 @@ POST {{baseUrl}}/auth/register
 Content-Type: {{contentType}}
 
 {
-  "email": "workflow@amazon.com",
-  "username": "amazon_user",
-  "password": "amazon123",
-  "role": "customer"
+  "email": "workflow@ecommerce.com",
+  "username": "workflow_user",
+  "password": "Workflow123"
 }
 
 ### @name registerUser
@@ -23,13 +22,14 @@ POST {{baseUrl}}/auth/login
 Content-Type: {{contentType}}
 
 {
-  "email": "workflow@amazon.com",
-  "password": "amazon123"
+  "email": "workflow@ecommerce.com",
+  "username": "workflow_user",
+  "password": "Workflow123"
 }
 
 ### @name customerLogin
 # Copy the 'access_token' value and paste below
-@customer_token = 
+@customer_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyIiwicm9sZSI6ImN1c3RvbWVyIiwiZXhwIjoxNzc4MzE0MDQ3fQ.__7UUuA-Kcg-1M-aPCwCRuiOZv4JTU3yeKsdgKnEmF0
 
 ###
 ### STEP 3: BROWSE CATEGORIES
@@ -94,13 +94,8 @@ Authorization: Bearer {{customer_token}}
 
 ###
 ### STEP 12: UPDATE CART ITEM QUANTITY
-PUT {{baseUrl}}/cart/items/1
+PUT {{baseUrl}}/cart/items/1?quantity=3
 Authorization: Bearer {{customer_token}}
-Content-Type: {{contentType}}
-
-{
-  "quantity": 3
-}
 
 ###
 ### STEP 13: VIEW UPDATED CART
@@ -145,12 +140,13 @@ Content-Type: {{contentType}}
 
 {
   "email": "admin@ecommerce.com",
+  "username": "admin_user",
   "password": "Admin123"
 }
 
 ### @name adminLogin
 # Copy the 'access_token' value and paste below
-@admin_token = 
+@admin_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwicm9sZSI6ImFkbWluIiwiZXhwIjoxNzc4MzEzODE4fQ.tP9Atq8ncbkyqRZ9L_P9erURSMGuBiltuY-XQJDgIqM
 
 ###
 ### STEP 19: UPDATE ORDER TO SHIPPED (Admin only)
@@ -182,7 +178,7 @@ Content-Type: {{contentType}}
 
 ### @name createReview
 # Save review ID
-@review_id = 
+@review_id = 1
 
 ###
 ### STEP 23: GET PRODUCT REVIEWS

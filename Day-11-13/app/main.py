@@ -44,6 +44,7 @@ app.include_router(products_routes.router)
 app.include_router(cart_routes.router)
 app.include_router(orders_routes.router)
 app.include_router(reviews_routes.router)
+app.include_router(reviews_routes.review_router)
 
 
 @app.get("/", tags=["Health Check"])
