@@ -15,9 +15,7 @@ This project demonstrates building a scalable e-commerce backend with:
 
 ## 🎬 Workflow Demo
 
-<video src="docs/workflow.mp4" controls width="100%">
-  <a href="docs/workflow.mp4">Watch the workflow demo</a>
-</video>
+https://github.com/bhargava562/python-backend-fundamentals/raw/main/Day-11-13/docs/workflow.mp4
 
 > Full walkthrough: Register → Browse → Add to Cart → Checkout → Review
 
