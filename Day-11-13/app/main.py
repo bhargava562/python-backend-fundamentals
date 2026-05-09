@@ -5,7 +5,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from app.database.config import engine
 from app.models.models import Base
-from app.routers import auth_routes, categories_routes, products_routes
+from app.routers import auth_routes, categories_routes, products_routes, cart_routes, orders_routes, reviews_routes
 
 # Create database tables on startup
 Base.metadata.create_all(bind=engine)
@@ -41,6 +41,9 @@ async def sqlalchemy_exception_handler(request, exc):
 app.include_router(auth_routes.router)
 app.include_router(categories_routes.router)
 app.include_router(products_routes.router)
+app.include_router(cart_routes.router)
+app.include_router(orders_routes.router)
+app.include_router(reviews_routes.router)
 
 
 @app.get("/", tags=["Health Check"])

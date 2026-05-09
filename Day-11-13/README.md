@@ -168,35 +168,302 @@ erDiagram
 
 ---
 
-## �🛣️ API Endpoint Specification (Blueprint)
+## 🛣️ API Endpoint Specification
 
-### Authentication
-* `POST /auth/register` - Register a new user
-* `POST /auth/login` - Authenticate and receive JWT token
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| **Authentication** |
+| POST | `/auth/register` | Register a new user | ❌ Public |
+| POST | `/auth/login` | Login and receive JWT token | ❌ Public |
+| **Categories** |
+| GET | `/categories` | List all categories | ❌ Public |
+| GET | `/categories/{id}` | Get category by ID | ❌ Public |
+| GET | `/categories/{id}/products` | Get products in category | ❌ Public |
+| POST | `/categories` | Create category | 👨‍💼 Admin |
+| PUT | `/categories/{id}` | Update category | 👨‍💼 Admin |
+| DELETE | `/categories/{id}` | Delete category | 👨‍💼 Admin |
+| **Products** |
+| GET | `/products` | List all products (with search/filter/sort) | ❌ Public |
+| GET | `/products/{id}` | Get product details | ❌ Public |
+| POST | `/products` | Create product | 👨‍💼 Admin |
+| PUT | `/products/{id}` | Update product | 👨‍💼 Admin |
+| DELETE | `/products/{id}` | Delete product | 👨‍💼 Admin |
+| **Shopping Cart** |
+| GET | `/cart` | View user's cart (auto-creates if missing) | 👤 User |
+| POST | `/cart/items` | Add item to cart | 👤 User |
+| PUT | `/cart/items/{id}` | Update item quantity | 👤 User |
+| DELETE | `/cart/items/{id}` | Remove item from cart | 👤 User |
+| DELETE | `/cart` | Clear entire cart | 👤 User |
+| **Orders** |
+| POST | `/orders` | **Checkout & create order** *(ACID Transaction)* | 👤 User |
+| GET | `/orders` | Get user's order history | 👤 User |
+| PUT | `/orders/{id}/status` | Update order status | 👨‍💼 Admin |
+| PUT | `/orders/{id}/cancel` | Cancel pending order (restore stock) | 👤 User |
+| **Reviews** |
+| GET | `/products/{id}/reviews` | Get reviews & avg rating | ❌ Public |
+| POST | `/products/{id}/reviews` | Create review *(Purchase verified)* | 👤 User |
+| PUT | `/reviews/{id}` | Update review | 👤 User (owner) |
+| DELETE | `/reviews/{id}` | Delete review | 👤 User (owner) |
 
-### Products & Categories
-* `GET /products` - Retrieve all products 
-* `GET /products/{id}` - Get details of a specific product
-* `GET /products/search?q={keyword}` - Search products by keyword
-* `POST /products` - Create a new product *(Admin Only)*
-* `PUT /products/{id}` - Update product details *(Admin Only)*
-* `DELETE /products/{id}` - Remove a product *(Admin Only)*
-* `GET /categories` - List all categories
-* `POST /categories` - Create a new category *(Admin Only)*
+---
 
-### Shopping Cart
-* `GET /cart` - View current user's shopping cart *(User Only)*
-* `POST /cart/items` - Add product to cart *(User Only)*
-* `DELETE /cart/items/{id}` - Remove specific item from cart *(User Only)*
+## 🆕 Day 13: Advanced Business Logic Features
 
-### Orders
-* `POST /orders` - Checkout cart and create an order *(User Only)*
-* `GET /orders` - View user's order history *(User Only)*
-* `GET /orders/{id}` - View specific order details *(User Only)*
+### 1. Shopping Cart API
+Manages user shopping sessions with stock validation and cart management.
 
-### Reviews
-* `GET /products/{id}/reviews` - View reviews for a specific product
-* `POST /products/{id}/reviews` - Submit a review for a product *(User Only)*
+**Endpoints:**
+
+#### `GET /cart` - View Shopping Cart
+- **Authorization:** User (requires JWT token)
+- **Auto-creates:** Empty cart if user doesn't have one
+- **Response:** Cart object with items array
+```json
+{
+  "id": 1,
+  "user_id": 5,
+  "created_at": "2024-01-15T10:30:00",
+  "items": [
+    {
+      "id": 1,
+      "product_id": 3,
+      "product_name": "Laptop",
+      "quantity": 2,
+      "price": 999.99
+    }
+  ]
+}
+```
+
+#### `POST /cart/items` - Add Product to Cart
+- **Authorization:** User
+- **Validation:**
+  - Product must exist (404 if not)
+  - **Stock check:** quantity <= available stock (400 if insufficient)
+  - If product already in cart, quantity is updated
+- **Request:**
+```json
+{
+  "product_id": 3,
+  "quantity": 2
+}
+```
+- **Response:** 201 Created with updated CartItem
+
+#### `PUT /cart/items/{id}` - Update Item Quantity
+- **Authorization:** User
+- **Validation:** Quantity > 0 and <= available stock
+- **Auto-delete:** If quantity set to 0, item is removed
+- **Request:**
+```json
+{
+  "quantity": 3
+}
+```
+
+#### `DELETE /cart/items/{id}` - Remove Item
+- **Authorization:** User
+- **Response:** 204 No Content
+
+#### `DELETE /cart` - Clear Entire Cart
+- **Authorization:** User
+- **Response:** 204 No Content
+
+---
+
+### 2. Order Management with ACID Transactions
+Implements production-grade checkout with atomic transactions and inventory management.
+
+**Key Features:**
+- 🔒 **ACID Compliance:** All-or-nothing checkout (no partial orders)
+- 📦 **Inventory Safety:** Stock deducted only on successful checkout
+- 💰 **Price Snapshot:** Historical prices stored with OrderItems
+- 🛡️ **Authorization:** Order ownership verification for status/cancel
+
+**Transaction Flow:**
+```
+User Checkout Request
+    ↓
+BEGIN TRANSACTION
+    ↓
+Validate cart not empty
+    ↓
+Validate ALL products exist & stock sufficient
+    ↓
+Deduct stock from each product
+    ↓
+Calculate total from current prices
+    ↓
+Create Order & OrderItems with price snapshot
+    ↓
+Delete all CartItems
+    ↓
+COMMIT ✅
+    ↓
+Return OrderResponse
+
+If ANY error: ROLLBACK ↩️
+→ Cart unchanged
+→ Stock unchanged
+→ No Order created
+```
+
+**Endpoints:**
+
+#### `POST /orders` - Checkout (Create Order)
+- **Authorization:** User
+- **Validation Steps:**
+  1. Cart must have items (400 if empty)
+  2. **Transaction:** Check all products in stock
+  3. **Transaction:** Deduct stock
+  4. **Transaction:** Create order with items
+  5. **Transaction:** Clear cart
+  6. All-or-nothing: Rollback on ANY failure
+- **Error Responses:**
+  - `400 Bad Request`: Empty cart or out of stock
+  - `500 Internal Server Error`: Database error (stock unchanged)
+- **Success Response:** 201 Created
+```json
+{
+  "id": 1,
+  "user_id": 5,
+  "total": 2499.99,
+  "status": "pending",
+  "created_at": "2024-01-15T11:00:00",
+  "items": [
+    {
+      "id": 1,
+      "product_id": 3,
+      "quantity": 2,
+      "price": 999.99
+    }
+  ]
+}
+```
+
+#### `GET /orders` - Order History
+- **Authorization:** User (sees only own orders)
+- **Query Parameters:**
+  - `skip`: Offset for pagination (default: 0)
+  - `limit`: Results per page (default: 10)
+  - `status`: Filter by status (optional: "pending", "shipped", "delivered", "cancelled")
+- **Response:** Array of OrderResponse objects
+```bash
+curl "http://localhost:8000/orders?skip=0&limit=10&status=delivered" \
+  -H "Authorization: Bearer {token}"
+```
+
+#### `PUT /orders/{id}/status` - Update Order Status
+- **Authorization:** Admin only
+- **Valid Transitions:** pending → shipped → delivered
+- **Request:**
+```json
+{
+  "new_status": "delivered"
+}
+```
+- **Error Responses:**
+  - `403 Forbidden`: Not admin
+  - `404 Not Found`: Order doesn't exist
+  - `400 Bad Request`: Invalid status transition
+
+#### `PUT /orders/{id}/cancel` - Cancel Order
+- **Authorization:** User (must own order)
+- **Restrictions:** Only "pending" orders can be cancelled
+- **Automatic Stock Restoration:** All products' stock is restored
+- **Response:** 200 OK with updated status "cancelled"
+- **Error Responses:**
+  - `403 Forbidden`: Not order owner OR order already shipped/delivered
+  - `404 Not Found`: Order doesn't exist
+
+---
+
+### 3. Review System with Purchase Verification
+Implements verified reviews system ensuring only buyers can review products.
+
+**Key Features:**
+- ✅ **Purchase Verification:** Must have delivered order with product
+- ⭐ **Rating System:** 1-5 star ratings (enforced)
+- 🧮 **Average Calculation:** Automatic average rating per product
+- 🔒 **Ownership Protection:** Users can only edit/delete own reviews
+- 🚫 **Duplicate Prevention:** One review per user per product
+
+**Endpoints:**
+
+#### `POST /products/{id}/reviews` - Create Review
+- **Authorization:** User (requires JWT token)
+- **Complex Validation:**
+  1. **Purchase Verification:** Query database for OrderItems where:
+     - Order belongs to current user
+     - Order status is "delivered"
+     - OrderItem contains product_id
+     - If not found → 403 Forbidden
+  2. **Uniqueness Check:** Verify no existing review (user_id, product_id)
+     - If exists → 400 Bad Request
+  3. **Rating Validation:** 1 <= rating <= 5
+- **Request:**
+```json
+{
+  "rating": 5,
+  "comment": "Excellent product, highly recommend!"
+}
+```
+- **Response:** 201 Created
+```json
+{
+  "id": 1,
+  "user_id": 5,
+  "product_id": 3,
+  "rating": 5,
+  "comment": "Excellent product, highly recommend!",
+  "created_at": "2024-01-15T12:00:00"
+}
+```
+
+#### `GET /products/{id}/reviews` - Get Product Reviews
+- **Authorization:** Public (no auth required)
+- **Query Parameters:**
+  - `skip`: Offset (default: 0)
+  - `limit`: Per page (default: 10)
+- **Response:** Reviews list + calculated average rating
+```json
+{
+  "total_reviews": 5,
+  "average_rating": 4.6,
+  "reviews": [
+    {
+      "id": 1,
+      "user_id": 5,
+      "product_id": 3,
+      "rating": 5,
+      "comment": "Great!",
+      "created_at": "2024-01-15T12:00:00"
+    }
+  ]
+}
+```
+
+#### `PUT /reviews/{id}` - Update Review
+- **Authorization:** User (must be review owner)
+- **Restrictions:** Can only update own review
+- **Request:**
+```json
+{
+  "rating": 4,
+  "comment": "Good, but room for improvement"
+}
+```
+- **Response:** 200 OK with updated review
+- **Error Responses:**
+  - `403 Forbidden`: Not review owner
+  - `404 Not Found`: Review doesn't exist
+
+#### `DELETE /reviews/{id}` - Delete Review
+- **Authorization:** User (must be review owner)
+- **Response:** 204 No Content
+- **Error Responses:**
+  - `403 Forbidden`: Not review owner
+  - `404 Not Found`: Review doesn't exist
 
 ---
 
@@ -333,8 +600,9 @@ curl -X POST "http://localhost:8000/products" \
 1. **Database Models**
    - User, Category, Product, Cart, CartItem, Order, OrderItem, Review
    - Foreign keys and relationships
-   - Constraints (price > 0, stock >= 0, unique product names per category)
-   - Indexes for optimized queries
+   - Constraints (price > 0, stock >= 0, unique product names per category, rating 1-5)
+   - CheckConstraints and unique constraints for data integrity
+   - Cascade/restrict delete policies
 
 2. **Authentication System**
    - User registration with password validation
@@ -342,6 +610,7 @@ curl -X POST "http://localhost:8000/products" \
    - Password hashing with bcrypt
    - Protected routes with Bearer token authentication
    - Role-based access (admin, customer)
+   - Security functions: `hash_password()`, `verify_password()`, `create_access_token()`
 
 3. **Products API**
    - Create product (admin only)
@@ -349,7 +618,9 @@ curl -X POST "http://localhost:8000/products" \
    - Get single product by ID
    - Update product (admin only)
    - Delete product (admin only)
-   - Image URL support
+   - Search by name/description (case-insensitive)
+   - Filter by category, price range
+   - Sort by price, name, or date
 
 4. **Categories API**
    - Create category (admin only)
@@ -358,22 +629,323 @@ curl -X POST "http://localhost:8000/products" \
    - Update category (admin only)
    - Delete category (admin only)
 
-5. **Search & Filter**
-   - Search by name and description (case-insensitive)
-   - Filter by category
-   - Filter by price range (min_price, max_price)
-   - Sort by price, name, or date created
-   - Pagination with skip/limit
+5. **Shopping Cart API** ✨ **NEW**
+   - Session-based cart management
+   - Auto-create cart on first access (unique per user)
+   - Add/update/remove items with stock validation
+   - Prevents overselling (quantity > stock → 400 error)
+   - Clear entire cart
+   - Update quantity (auto-delete if qty = 0)
 
-6. **Error Handling**
+6. **Order Management with ACID Transactions** ✨ **NEW**
+   - **All-or-nothing checkout:** Complete transaction atomicity
+   - Stock validation before purchase
+   - Automatic inventory deduction
+   - Price snapshot (historical prices in OrderItems)
+   - Order status workflow: pending → shipped → delivered
+   - User can cancel pending orders (stock restored)
+   - Admin can update order status
+   - Rollback on ANY error (stock, order, cart all unchanged)
+   - Order history with filtering and pagination
+
+7. **Review System with Purchase Verification** ✨ **NEW**
+   - **Purchase Verification:** Only delivered order customers can review
+   - Database query validation for purchase authenticity
+   - One review per user per product (unique constraint)
+   - Rating validation (1-5 stars enforced)
+   - Auto-calculate average rating per product
+   - Ownership protection (users can only edit/delete own reviews)
+   - Optional comment field
+   - Public reviews endpoint with pagination
+
+8. **Error Handling**
    - Validation errors (400 Bad Request)
    - Unauthorized access (401 Unauthorized)
    - Admin-only access (403 Forbidden)
    - Not found errors (404 Not Found)
-   - Database error handling (500 Internal Server Error)
+   - Database error handling with transaction rollback
+   - Purchase verification failures
+   - Stock insufficiency errors
 
-7. **Testing & Documentation**
+9. **Testing & Documentation**
    - Postman collection with all endpoints
    - Auto-save JWT token in Postman
    - Seed script with test data
    - Swagger/OpenAPI documentation
+   - Python test suite (`tests/test_day13_complex_logic.py`) with 18+ test scenarios
+
+---
+
+## 🧪 Day 13: Testing Advanced Features
+
+### Running the Comprehensive Test Suite
+
+A complete test suite for all Day 13 features has been created at [`tests/test_day13_complex_logic.py`](tests/test_day13_complex_logic.py).
+
+**Run the tests:**
+```bash
+# Make sure the server is running:
+# uvicorn app.main:app --reload
+
+# In another terminal, run the test suite:
+python tests/test_day13_complex_logic.py
+```
+
+### Test Coverage
+
+The test suite verifies all critical business logic:
+
+#### 1. Authentication
+- ✅ Admin login
+- ✅ Customer login
+
+#### 2. Shopping Cart Operations
+- ✅ Auto-create cart on first access
+- ✅ Add item to cart
+- ✅ Reject quantity > available stock
+- ✅ View cart contents
+- ✅ Stock tracking
+
+#### 3. Transaction Safety (ACID)
+- ✅ **Empty cart checkout** → 400 error (cart still has items)
+- ✅ **Insufficient stock** → 400 error (all stock unchanged)
+- ✅ **Successful checkout**:
+  - Cart becomes empty
+  - Stock decreases
+  - Order created with status "pending"
+  - OrderItems have price snapshot
+- ✅ **Failed checkout** → ROLLBACK:
+  - Cart untouched
+  - Stock unchanged
+  - No Order created
+
+#### 4. Order Management
+- ✅ Create order (successful checkout)
+- ✅ Get order history with pagination
+- ✅ Admin updates order status (pending → shipped → delivered)
+- ✅ Cancel pending order (stock restored)
+- ✅ Cannot cancel shipped/delivered orders
+
+#### 5. Review System (Purchase Verification)
+- ✅ **Cannot review before delivery** → 403 Forbidden
+- ✅ **Cannot review without purchase** → 403 Forbidden
+- ✅ **Review after delivery** → 201 Created
+- ✅ **Duplicate review prevention** → 400 Bad Request
+- ✅ **Update own review** → 200 OK
+- ✅ **Cannot update others' reviews** → 403 Forbidden
+- ✅ **Average rating calculation**
+- ✅ **Delete own review** → 204 No Content
+
+### Manual Testing Workflow
+
+**Test Scenario: Complete Customer Journey**
+
+```bash
+# 1. Start the server
+uvicorn app.main:app --reload
+
+# 2. Login as customer
+curl -X POST "http://localhost:8000/auth/login" \
+  -H "Content-Type: application/json" \
+  -d '{"email":"customer@ecommerce.com","password":"Customer123"}' \
+  | jq -r '.access_token' > token.txt
+
+TOKEN=$(cat token.txt)
+
+# 3. Get initial stock
+curl "http://localhost:8000/products/1" | jq '.stock'
+
+# 4. View empty cart
+curl "http://localhost:8000/cart" \
+  -H "Authorization: Bearer $TOKEN" | jq
+
+# 5. Add item to cart
+curl -X POST "http://localhost:8000/cart/items" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"product_id": 1, "quantity": 2}'
+
+# 6. View cart with items
+curl "http://localhost:8000/cart" \
+  -H "Authorization: Bearer $TOKEN" | jq
+
+# 7. Checkout (create order)
+curl -X POST "http://localhost:8000/orders" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  | jq '.id' > order_id.txt
+
+ORDER_ID=$(cat order_id.txt)
+
+# 8. Verify stock decreased
+curl "http://localhost:8000/products/1" | jq '.stock'
+
+# 9. Verify cart is empty
+curl "http://localhost:8000/cart" \
+  -H "Authorization: Bearer $TOKEN" | jq '.items'
+
+# 10. Try to review (should fail - order still pending)
+curl -X POST "http://localhost:8000/products/1/reviews" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"rating": 5, "comment": "Great product!"}' \
+  | jq '.detail'
+
+# 11. Login as admin and update order status
+curl -X POST "http://localhost:8000/auth/login" \
+  -H "Content-Type: application/json" \
+  -d '{"email":"admin@ecommerce.com","password":"Admin123"}' \
+  | jq -r '.access_token' > admin_token.txt
+
+ADMIN_TOKEN=$(cat admin_token.txt)
+
+curl -X PUT "http://localhost:8000/orders/$ORDER_ID/status?new_status=delivered" \
+  -H "Authorization: Bearer $ADMIN_TOKEN" | jq '.status'
+
+# 12. Now try to review (should succeed)
+curl -X POST "http://localhost:8000/products/1/reviews" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"rating": 5, "comment": "Excellent product, highly recommend!"}' \
+  | jq
+
+# 13. View product reviews with average rating
+curl "http://localhost:8000/products/1/reviews" | jq
+```
+
+### Testing Transaction Atomicity
+
+To verify ACID properties, create a test scenario with insufficient stock:
+
+```bash
+# Get a product with limited stock
+curl "http://localhost:8000/products" | jq '.[] | {id, name, stock}' | grep -A 2 "stock"
+
+# Add quantity that exceeds stock
+curl -X POST "http://localhost:8000/cart/items" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"product_id": 1, "quantity": 999}' \
+  | jq '.detail'  # Should be 400 error
+
+# Verify cart and stock are unchanged
+curl "http://localhost:8000/cart" \
+  -H "Authorization: Bearer $TOKEN" | jq '.items'
+
+curl "http://localhost:8000/products/1" | jq '.stock'
+```
+
+### Testing Authorization
+
+**Admin-only endpoints:**
+```bash
+# Try to update order status as customer (should fail)
+curl -X PUT "http://localhost:8000/orders/1/status?new_status=delivered" \
+  -H "Authorization: Bearer $TOKEN" \
+  | jq '.detail'  # Should be 403 Forbidden
+```
+
+**Purchase verification:**
+```bash
+# Try to review a product without purchasing (should fail)
+curl -X POST "http://localhost:8000/products/999/reviews" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"rating": 5, "comment": "Fake review"}' \
+  | jq '.detail'  # Should be 403 Forbidden
+```
+
+---
+
+## 🔐 Security & Data Integrity Features
+
+### Password Security
+- Bcrypt hashing with salting
+- Never store plain passwords
+- Verification on login
+
+### JWT Authentication
+- 30-minute token expiry
+- Bearer token in Authorization header
+- Role-based access control (admin vs customer)
+
+### Database Constraints
+- **CheckConstraints:** Product price > 0, stock >= 0, review rating 1-5
+- **UniqueConstraints:**
+  - User: email, username
+  - Category: name
+  - Product: name per category
+  - CartItem: (cart_id, product_id) - one per product per cart
+  - Review: (user_id, product_id) - one per user per product
+- **ForeignKeys:** Cascade delete for orphaned items
+
+### ACID Transaction Safety
+- All-or-nothing checkout
+- No partial orders
+- Stock never oversold
+- Automatic rollback on error
+
+### Authorization
+- User can only see own cart and orders
+- Admin-only endpoints protected
+- Review ownership verified
+- Order ownership verified
+
+---
+
+## 📖 Quick Reference
+
+### Test Credentials
+- **Admin:** admin@ecommerce.com / Admin123
+- **Customer:** customer@ecommerce.com / Customer123
+
+### API Base URL
+```
+http://localhost:8000
+```
+
+### Key Files
+- Models: [`app/models/models.py`](app/models/models.py)
+- Schemas: [`app/schemas/schemas.py`](app/schemas/schemas.py)
+- Routers: 
+  - [`app/routers/auth_routes.py`](app/routers/auth_routes.py)
+  - [`app/routers/cart_routes.py`](app/routers/cart_routes.py) (NEW)
+  - [`app/routers/orders_routes.py`](app/routers/orders_routes.py) (NEW)
+  - [`app/routers/reviews_routes.py`](app/routers/reviews_routes.py) (NEW)
+- Tests: [`tests/test_day13_complex_logic.py`](tests/test_day13_complex_logic.py) (NEW)
+- Database: [`app/database/config.py`](app/database/config.py)
+- Seeds: [`app/utils/seed.py`](app/utils/seed.py)
+
+### Useful Commands
+```bash
+# Run server with auto-reload
+uvicorn app.main:app --reload
+
+# Run test suite
+python tests/test_day13_complex_logic.py
+
+# Seed database
+python -m app.utils.seed
+
+# View API docs
+# Swagger: http://localhost:8000/docs
+# ReDoc: http://localhost:8000/redoc
+```
+
+---
+
+## ✨ Key Achievements
+
+✅ **Shopping Cart Management** - Session-based with stock validation
+✅ **ACID Transactions** - All-or-nothing checkout with automatic rollback  
+✅ **Inventory Management** - No overselling, automatic deduction
+✅ **Order Lifecycle** - Full workflow from pending to delivered
+✅ **Purchase Verification** - Reviews only from verified buyers
+✅ **Role-Based Access** - Admin vs customer permissions
+✅ **Comprehensive Error Handling** - Clear error messages and status codes
+✅ **Complete Test Coverage** - 18+ scenarios covering all features
+✅ **Production-Ready** - Security, data integrity, and scalability
+
+---
+
+**Created with ❤️ for learning e-commerce backend architecture**

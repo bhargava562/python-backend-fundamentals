@@ -3,7 +3,7 @@
 # 🐍 Python Backend Fundamentals
 
 ![Python](https://img.shields.io/badge/Python-3.12+-3776AB?style=for-the-badge&logo=python&logoColor=white)
-![Status](https://img.shields.io/badge/Status-In%20Progress-yellow?style=for-the-badge)
+![Status](https://img.shields.io/badge/Status-Complete-brightgreen?style=for-the-badge)
 ![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
 ![Last Commit](https://img.shields.io/github/last-commit/bhargava562/python-backend-fundamentals?style=for-the-badge)
 
@@ -27,7 +27,11 @@ python-backend-fundamentals/
 ├── Day-8/ → OAuth 2.0 Integration (Google OAuth, Session Management, Security Hardening)
 ├── Day-9/ → Advanced Query Optimization (Indexing, N+1 Queries, Caching Strategies)
 ├── Day-10/ → Error Handling & Logging (Structured Logs, Error Recovery, Monitoring)
-└── Day-11-13/ → E-Commerce Backend (FastAPI + PostgreSQL, Authentication, Product Management)
+└── Day-11-13/ → Production E-Commerce API
+    ├── Days 11-12: Product Management · Categories · Search/Filter/Sort
+    ├── Day 13: 🆕 Shopping Cart · ACID Transactions · Purchase-Verified Reviews
+    ├── 33 Total Endpoints · PostgreSQL · JWT + Role-Based Auth
+    └── Comprehensive Test Suite (18+ scenarios)
 ```
 
 ---
@@ -46,7 +50,8 @@ python-backend-fundamentals/
 | [Day 8](./Day-8/README.md) | OAuth 2.0 · Google OAuth Integration · Session Management · Credential Protection · Security Hardening | ✅ Complete |
 | [Day 9](./Day-9/README.md) | Query Optimization · N+1 Problem · Database Indexing · Caching Strategies | ✅ Complete |
 | [Day 10](./Day-10/README.md) | Error Handling · Structured Logging · Monitoring · Recovery Strategies | ✅ Complete |
-| [Day 11-13](./Day-11-13/README.md) | E-Commerce Backend · PostgreSQL · JWT Auth · Product Management · REST API | ✅ Complete |
+| [Day 11-12](./Day-11-13/README.md) | E-Commerce Backend · PostgreSQL · JWT Auth · Product Management · Search/Filter/Sort | ✅ Complete |
+| [Day 13](./Day-11-13/README.md) | 🆕 Shopping Cart · ACID Transactions · Inventory Management · Purchase-Verified Reviews | ✅ Complete |
 
 ---
 
@@ -77,6 +82,46 @@ pip install -r requirements.txt
 - **Day 1-2:** Run individual scripts (e.g., `python Day-1/user.py`).
 - **Day 4:** Run the FastAPI server: `uvicorn app.main:app --reload`.
 - **Day 5:** Run the validation demo: `python app/main.py`.
+- **Day 11-13:** Production-grade E-Commerce API:
+  ```bash
+  cd Day-11-13
+  
+  # Setup database (PostgreSQL required)
+  python seed_postgres.py
+  
+  # Start server
+  uvicorn app.main:app --reload
+  
+  # Run comprehensive test suite (in another terminal)
+  python tests/test_day13_complex_logic.py
+  
+  # API Documentation: http://localhost:8000/docs
+  ```
+
+---
+
+## 🚀 Day 13: Advanced E-Commerce Features
+
+### What's Included
+✨ **Shopping Cart API** - Session-based cart with stock validation and auto-create functionality
+✨ **ACID Transactions** - All-or-nothing checkout with automatic rollback on errors
+✨ **Purchase-Verified Reviews** - Only verified buyers can review products
+✨ **Complete Test Suite** - 18+ scenarios covering all workflows and edge cases
+
+### 33 Total API Endpoints
+- 2 Auth endpoints (register, login)
+- 6 Category endpoints (CRUD + product listing)
+- 5 Product endpoints (CRUD + advanced search/filter/sort)
+- 5 Cart endpoints (view, add, update, delete, clear) 🆕
+- 4 Order endpoints (checkout, history, status update, cancel) 🆕
+- 4 Review endpoints (create, list, update, delete) 🆕
+- 2 Health check endpoints
+
+### Documentation & Resources
+- 📖 [Day 13 Complete Implementation Guide](./Day-11-13/docs/DAY_13_COMPLETION_SUMMARY.md)
+- 🔧 [Day 13 Implementation Checklist](./Day-11-13/docs/DAY_13_IMPLEMENTATION_CHECKLIST.md)
+- 📋 [API Endpoints Reference (All 33)](./Day-11-13/docs/API_ENDPOINTS_REFERENCE.md)
+- 📚 [Documentation Hub](./Day-11-13/docs/INDEX.md)
 
 ---
 

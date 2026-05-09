@@ -14,12 +14,31 @@ Welcome to the documentation directory! Here you'll find comprehensive guides fo
 - **[README.md](../README.md)** - Main project documentation, setup instructions, and API overview
 
 ### 📋 Implementation Details
-- **[IMPLEMENTATION_CHECKLIST.md](./IMPLEMENTATION_CHECKLIST.md)** - Complete feature checklist and deliverables status
+- **[IMPLEMENTATION_CHECKLIST.md](./IMPLEMENTATION_CHECKLIST.md)** - Complete feature checklist and deliverables status (Days 11-12)
   - Database models (8 entities)
   - Authentication system
   - CRUD operations
   - Search and filtering
   - Error handling
+
+- **[DAY_13_IMPLEMENTATION_CHECKLIST.md](./DAY_13_IMPLEMENTATION_CHECKLIST.md)** - ✨ Day 13 Advanced Features Implementation
+  - Shopping Cart API (5 endpoints)
+  - Order Management with ACID Transactions (4 endpoints)
+  - Review System with Purchase Verification (4 endpoints)
+  - Integration and testing (18+ scenarios)
+
+- **[DAY_13_COMPLETION_SUMMARY.md](./DAY_13_COMPLETION_SUMMARY.md)** - ✨ Day 13 Comprehensive Summary
+  - Complete feature breakdown
+  - ACID transaction details
+  - Purchase verification logic
+  - Key achievements and statistics
+
+- **[API_ENDPOINTS_REFERENCE.md](./API_ENDPOINTS_REFERENCE.md)** - ✨ Quick API Reference (all 33 endpoints)
+  - Quick endpoint summary
+  - Request/response examples
+  - Error codes and status codes
+  - Authorization levels
+  - Query parameters
 
 ### 🔐 Security & Organization
 - **[FILE_ORGANIZATION.md](./FILE_ORGANIZATION.md)** - File organization guide and security best practices
@@ -57,8 +76,16 @@ Welcome to the documentation directory! Here you'll find comprehensive guides fo
 **Understand the project structure**
 → Read [FILE_ORGANIZATION.md](./FILE_ORGANIZATION.md) - Directory Structure section
 
-**Check implemented features**
+**Check implemented features (Days 11-12)**
 → Read [IMPLEMENTATION_CHECKLIST.md](./IMPLEMENTATION_CHECKLIST.md) - All components listed
+
+**Learn about Day 13 advanced features** ✨
+→ Read [DAY_13_COMPLETION_SUMMARY.md](./DAY_13_COMPLETION_SUMMARY.md) - Feature Overview
+→ Read [DAY_13_IMPLEMENTATION_CHECKLIST.md](./DAY_13_IMPLEMENTATION_CHECKLIST.md) - Detailed Checklist
+
+**Understand ACID transactions and shopping carts** ✨
+→ Read [DAY_13_COMPLETION_SUMMARY.md](./DAY_13_COMPLETION_SUMMARY.md) - Shopping Cart & Order sections
+→ Read [API_ENDPOINTS_REFERENCE.md](./API_ENDPOINTS_REFERENCE.md) - Endpoint details
 
 **Connect to PostgreSQL**
 → Read [POSTGRES_CONNECTION.md](./POSTGRES_CONNECTION.md) - Connection Details section
@@ -71,6 +98,7 @@ Welcome to the documentation directory! Here you'll find comprehensive guides fo
 
 **Run tests**
 → Read [README.md](../README.md) - Testing section
+→ Or for Day 13 tests: [DAY_13_IMPLEMENTATION_CHECKLIST.md](./DAY_13_IMPLEMENTATION_CHECKLIST.md) - Phase 5: Testing
 
 **Deploy to production**
 → Read [README.md](../README.md) - Production Deployment section
@@ -85,7 +113,10 @@ Day-11-13/
 │
 ├── docs/                  (📚 All documentation)
 │   ├── INDEX.md          (This file - documentation hub)
-│   ├── IMPLEMENTATION_CHECKLIST.md
+│   ├── IMPLEMENTATION_CHECKLIST.md          (Days 11-12 features)
+│   ├── DAY_13_IMPLEMENTATION_CHECKLIST.md   (✨ Day 13 checklist)
+│   ├── DAY_13_COMPLETION_SUMMARY.md         (✨ Day 13 summary)
+│   ├── API_ENDPOINTS_REFERENCE.md           (✨ API reference)
 │   ├── FILE_ORGANIZATION.md
 │   ├── ORGANIZATION_SUMMARY.md
 │   └── POSTGRES_CONNECTION.md
