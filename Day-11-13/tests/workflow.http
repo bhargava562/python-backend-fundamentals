@@ -9,9 +9,9 @@ POST {{baseUrl}}/auth/register
 Content-Type: {{contentType}}
 
 {
-  "email": "workflow@ecommerce.com",
-  "username": "workflow_user",
-  "password": "Workflow123",
+  "email": "workflow@amazon.com",
+  "username": "amazon_user",
+  "password": "amazon123",
   "role": "customer"
 }
 
@@ -23,8 +23,8 @@ POST {{baseUrl}}/auth/login
 Content-Type: {{contentType}}
 
 {
-  "email": "workflow@ecommerce.com",
-  "password": "Workflow123"
+  "email": "workflow@amazon.com",
+  "password": "amazon123"
 }
 
 ### @name customerLogin
