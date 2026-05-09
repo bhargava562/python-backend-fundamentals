@@ -1,0 +1,62 @@
+### Authentication Endpoints Testing
+
+@baseUrl = http://localhost:8000
+@contentType = application/json
+
+###
+### ADMIN REGISTRATION
+POST {{baseUrl}}/auth/register
+Content-Type: {{contentType}}
+
+{
+  "email": "admin@ecommerce.com",
+  "username": "admin_user",
+  "password": "Admin123",
+  "role": "admin"
+}
+
+###
+### CUSTOMER REGISTRATION
+POST {{baseUrl}}/auth/register
+Content-Type: {{contentType}}
+
+{
+  "email": "customer@ecommerce.com",
+  "username": "customer_user",
+  "password": "Customer123",
+  "role": "customer"
+}
+
+###
+### ADMIN LOGIN
+# Save the token from response as @admin_token
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "admin@ecommerce.com",
+  "password": "Admin123"
+}
+
+### @name adminLogin
+# After running this, copy the 'access_token' value and paste it here
+@admin_token = 
+
+###
+### CUSTOMER LOGIN
+# Save the token from response as @token
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "customer@ecommerce.com",
+  "password": "Customer123"
+}
+
+### @name customerLogin
+# After running this, copy the 'access_token' value and paste it here
+@token = 
+
+###
+### TEST ENDPOINT - Health Check (No Auth Required)
+GET {{baseUrl}}/health

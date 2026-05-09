@@ -1,0 +1,111 @@
+### Shopping Cart Endpoints Testing
+
+@baseUrl = http://localhost:8000
+@contentType = application/json
+@token = <paste-customer-token-here>
+
+###
+### VIEW CART (Auto-creates if empty)
+GET {{baseUrl}}/cart
+Authorization: Bearer {{token}}
+
+### @name getCart
+# Save cart ID for later use
+@cart_id = 
+
+###
+### ADD ITEM TO CART
+POST {{baseUrl}}/cart/items
+Authorization: Bearer {{token}}
+Content-Type: {{contentType}}
+
+{
+  "product_id": 1,
+  "quantity": 2
+}
+
+###
+### ADD ANOTHER ITEM TO CART
+POST {{baseUrl}}/cart/items
+Authorization: Bearer {{token}}
+Content-Type: {{contentType}}
+
+{
+  "product_id": 2,
+  "quantity": 1
+}
+
+###
+### VIEW CART AFTER ADDING ITEMS
+GET {{baseUrl}}/cart
+Authorization: Bearer {{token}}
+
+### @name getCartWithItems
+# Save cart item ID for update/delete operations
+@cart_item_id = 1
+
+###
+### UPDATE ITEM QUANTITY IN CART
+PUT {{baseUrl}}/cart/items/1
+Authorization: Bearer {{token}}
+Content-Type: {{contentType}}
+
+{
+  "quantity": 5
+}
+
+###
+### UPDATE ITEM QUANTITY TO 0 (Auto-deletes item)
+PUT {{baseUrl}}/cart/items/1
+Authorization: Bearer {{token}}
+Content-Type: {{contentType}}
+
+{
+  "quantity": 0
+}
+
+###
+### DELETE SPECIFIC CART ITEM
+DELETE {{baseUrl}}/cart/items/1
+Authorization: Bearer {{token}}
+
+###
+### VIEW CART AFTER DELETIONS
+GET {{baseUrl}}/cart
+Authorization: Bearer {{token}}
+
+###
+### CLEAR ENTIRE CART
+DELETE {{baseUrl}}/cart
+Authorization: Bearer {{token}}
+
+###
+### VIEW EMPTY CART
+GET {{baseUrl}}/cart
+Authorization: Bearer {{token}}
+
+###
+### ERROR TEST: ADD MORE ITEMS THAN AVAILABLE STOCK
+POST {{baseUrl}}/cart/items
+Authorization: Bearer {{token}}
+Content-Type: {{contentType}}
+
+{
+  "product_id": 1,
+  "quantity": 9999
+}
+
+###
+### ERROR TEST: UNAUTHORIZED ACCESS (No Token)
+GET {{baseUrl}}/cart
+
+###
+### ERROR TEST: INVALID PRODUCT ID
+POST {{baseUrl}}/cart/items
+Authorization: Bearer {{token}}
+Content-Type: {{contentType}}
+
+{
+  "product_id": 99999,
+  "quantity": 1
+}

@@ -1,0 +1,250 @@
+### Complete Workflow: Register → Browse → Add to Cart → Order → Review
+
+@baseUrl = http://localhost:8000
+@contentType = application/json
+
+###
+### STEP 1: REGISTER NEW CUSTOMER
+POST {{baseUrl}}/auth/register
+Content-Type: {{contentType}}
+
+{
+  "email": "workflow@ecommerce.com",
+  "username": "workflow_user",
+  "password": "Workflow123",
+  "role": "customer"
+}
+
+### @name registerUser
+
+###
+### STEP 2: LOGIN - Get Customer Token
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "workflow@ecommerce.com",
+  "password": "Workflow123"
+}
+
+### @name customerLogin
+# Copy the 'access_token' value and paste below
+@customer_token = 
+
+###
+### STEP 3: BROWSE CATEGORIES
+GET {{baseUrl}}/categories
+
+###
+### STEP 4: BROWSE PRODUCTS IN CATEGORY
+GET {{baseUrl}}/categories/1/products
+
+###
+### STEP 5: GET PRODUCT DETAILS
+GET {{baseUrl}}/products/1
+
+### @name getProduct
+# Save product ID
+@product_id = 1
+
+###
+### STEP 6: SEARCH PRODUCTS
+GET {{baseUrl}}/products?search=laptop&sort_by=price&sort_order=asc
+
+###
+### STEP 7: VIEW CART (Auto-creates empty cart)
+GET {{baseUrl}}/cart
+Authorization: Bearer {{customer_token}}
+
+###
+### STEP 8: ADD PRODUCT TO CART (First item)
+POST {{baseUrl}}/cart/items
+Authorization: Bearer {{customer_token}}
+Content-Type: {{contentType}}
+
+{
+  "product_id": 1,
+  "quantity": 2
+}
+
+###
+### STEP 9: BROWSE MORE PRODUCTS
+GET {{baseUrl}}/products?min_price=500&max_price=1500
+
+###
+### STEP 10: ADD ANOTHER PRODUCT TO CART (Second item)
+POST {{baseUrl}}/cart/items
+Authorization: Bearer {{customer_token}}
+Content-Type: {{contentType}}
+
+{
+  "product_id": 2,
+  "quantity": 1
+}
+
+###
+### STEP 11: VIEW CART WITH ALL ITEMS
+GET {{baseUrl}}/cart
+Authorization: Bearer {{customer_token}}
+
+### @name getCartBeforeCheckout
+# Save cart item IDs if needed
+@cart_item_1 = 1
+@cart_item_2 = 2
+
+###
+### STEP 12: UPDATE CART ITEM QUANTITY
+PUT {{baseUrl}}/cart/items/1
+Authorization: Bearer {{customer_token}}
+Content-Type: {{contentType}}
+
+{
+  "quantity": 3
+}
+
+###
+### STEP 13: VIEW UPDATED CART
+GET {{baseUrl}}/cart
+Authorization: Bearer {{customer_token}}
+
+###
+### STEP 14: CHECKOUT - Create Order (ACID Transaction)
+POST {{baseUrl}}/orders
+Authorization: Bearer {{customer_token}}
+Content-Type: {{contentType}}
+
+### @name checkoutOrder
+# Save order ID
+@order_id = 
+
+###
+### STEP 15: VERIFY CART IS EMPTY AFTER CHECKOUT
+GET {{baseUrl}}/cart
+Authorization: Bearer {{customer_token}}
+
+###
+### STEP 16: GET ORDER HISTORY
+GET {{baseUrl}}/orders
+Authorization: Bearer {{customer_token}}
+
+###
+### STEP 17: ATTEMPT REVIEW BEFORE DELIVERY (Should fail - 403)
+POST {{baseUrl}}/products/1/reviews
+Authorization: Bearer {{customer_token}}
+Content-Type: {{contentType}}
+
+{
+  "rating": 5,
+  "comment": "Great product!"
+}
+
+###
+### STEP 18: LOGIN AS ADMIN TO UPDATE ORDER STATUS
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "admin@ecommerce.com",
+  "password": "Admin123"
+}
+
+### @name adminLogin
+# Copy the 'access_token' value and paste below
+@admin_token = 
+
+###
+### STEP 19: UPDATE ORDER TO SHIPPED (Admin only)
+PUT {{baseUrl}}/orders/1/status?new_status=shipped
+Authorization: Bearer {{admin_token}}
+Content-Type: {{contentType}}
+
+###
+### STEP 20: UPDATE ORDER TO DELIVERED (Admin only)
+PUT {{baseUrl}}/orders/1/status?new_status=delivered
+Authorization: Bearer {{admin_token}}
+Content-Type: {{contentType}}
+
+###
+### STEP 21: VERIFY ORDER IS DELIVERED
+GET {{baseUrl}}/orders?status=delivered
+Authorization: Bearer {{customer_token}}
+
+###
+### STEP 22: NOW CREATE REVIEW (Should succeed - 201)
+POST {{baseUrl}}/products/1/reviews
+Authorization: Bearer {{customer_token}}
+Content-Type: {{contentType}}
+
+{
+  "rating": 5,
+  "comment": "Excellent quality! Highly recommended!"
+}
+
+### @name createReview
+# Save review ID
+@review_id = 
+
+###
+### STEP 23: GET PRODUCT REVIEWS
+GET {{baseUrl}}/products/1/reviews
+
+###
+### STEP 24: VIEW REVIEW WITH AVERAGE RATING
+GET {{baseUrl}}/products/1/reviews?skip=0&limit=10
+
+###
+### STEP 25: UPDATE OWN REVIEW
+PUT {{baseUrl}}/reviews/1
+Authorization: Bearer {{customer_token}}
+Content-Type: {{contentType}}
+
+{
+  "rating": 4,
+  "comment": "Very good product, excellent packaging!"
+}
+
+###
+### STEP 26: VIEW UPDATED REVIEW
+GET {{baseUrl}}/products/1/reviews
+
+###
+### STEP 27: ATTEMPT DUPLICATE REVIEW (Should fail - 400)
+POST {{baseUrl}}/products/1/reviews
+Authorization: Bearer {{customer_token}}
+Content-Type: {{contentType}}
+
+{
+  "rating": 3,
+  "comment": "Another review attempt"
+}
+
+###
+### STEP 28: DELETE REVIEW
+DELETE {{baseUrl}}/reviews/1
+Authorization: Bearer {{customer_token}}
+
+###
+### STEP 29: VERIFY REVIEW DELETED
+GET {{baseUrl}}/products/1/reviews
+
+###
+### WORKFLOW COMPLETE ✅
+### Summary of tested operations:
+### ✅ Register new user
+### ✅ Login and get token
+### ✅ Browse categories and products
+### ✅ View empty cart (auto-created)
+### ✅ Add items to cart
+### ✅ Update cart item quantity
+### ✅ Checkout with ACID transaction
+### ✅ Verify cart cleared after checkout
+### ✅ View order history
+### ✅ Attempt review before delivery (403 error)
+### ✅ Admin updates order status
+### ✅ Create review after delivery
+### ✅ Update review
+### ✅ View reviews with average rating
+### ✅ Attempt duplicate review (400 error)
+### ✅ Delete review
+
+GET {{baseUrl}}/health

@@ -1,0 +1,217 @@
+### Admin Endpoints Testing
+
+@baseUrl = http://localhost:8000
+@contentType = application/json
+@admin_token = <paste-admin-token-here>
+
+###
+### ADMIN LOGIN
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "admin@ecommerce.com",
+  "password": "Admin123"
+}
+
+### @name adminLogin
+# Copy the 'access_token' value and paste below
+@admin_token = 
+
+###
+### CREATE CATEGORY (Admin Only)
+POST {{baseUrl}}/categories
+Authorization: Bearer {{admin_token}}
+Content-Type: {{contentType}}
+
+{
+  "name": "Laptops",
+  "description": "High-performance laptops and ultrabooks"
+}
+
+### @name createCategory
+# Save category ID
+@category_id = 
+
+###
+### CREATE ANOTHER CATEGORY
+POST {{baseUrl}}/categories
+Authorization: Bearer {{admin_token}}
+Content-Type: {{contentType}}
+
+{
+  "name": "Smartphones",
+  "description": "Latest smartphones and devices"
+}
+
+###
+### GET ALL CATEGORIES
+GET {{baseUrl}}/categories
+
+###
+### UPDATE CATEGORY
+PUT {{baseUrl}}/categories/1
+Authorization: Bearer {{admin_token}}
+Content-Type: {{contentType}}
+
+{
+  "name": "Laptops & Accessories",
+  "description": "Laptops, bags, and accessories"
+}
+
+###
+### CREATE PRODUCT (Admin Only)
+POST {{baseUrl}}/products
+Authorization: Bearer {{admin_token}}
+Content-Type: {{contentType}}
+
+{
+  "name": "Dell XPS 15",
+  "description": "Premium laptop with 15-inch display, Intel i9, 32GB RAM, 1TB SSD",
+  "price": 2499.99,
+  "stock": 50,
+  "image_url": "https://example.com/dell-xps-15.jpg",
+  "category_id": 1
+}
+
+### @name createProduct1
+# Save product ID
+@product_id_1 = 
+
+###
+### CREATE MULTIPLE PRODUCTS
+POST {{baseUrl}}/products
+Authorization: Bearer {{admin_token}}
+Content-Type: {{contentType}}
+
+{
+  "name": "MacBook Pro 16",
+  "description": "Apple's flagship laptop with M3 Max chip, 18GB RAM, 1TB SSD",
+  "price": 3499.99,
+  "stock": 30,
+  "image_url": "https://example.com/macbook-pro-16.jpg",
+  "category_id": 1
+}
+
+###
+### CREATE BUDGET PRODUCT
+POST {{baseUrl}}/products
+Authorization: Bearer {{admin_token}}
+Content-Type: {{contentType}}
+
+{
+  "name": "ASUS VivoBook 15",
+  "description": "Budget-friendly laptop perfect for students and everyday use",
+  "price": 599.99,
+  "stock": 100,
+  "image_url": "https://example.com/asus-vivobook.jpg",
+  "category_id": 1
+}
+
+###
+### UPDATE PRODUCT - Change Price
+PUT {{baseUrl}}/products/1
+Authorization: Bearer {{admin_token}}
+Content-Type: {{contentType}}
+
+{
+  "name": "Dell XPS 15 (2024)",
+  "description": "Premium laptop with 15-inch display, Intel i9, 32GB RAM, 1TB SSD, updated specs",
+  "price": 2799.99,
+  "stock": 50,
+  "image_url": "https://example.com/dell-xps-15-2024.jpg",
+  "category_id": 1
+}
+
+###
+### UPDATE PRODUCT - Increase Stock (Restock)
+PUT {{baseUrl}}/products/1
+Authorization: Bearer {{admin_token}}
+Content-Type: {{contentType}}
+
+{
+  "name": "Dell XPS 15 (2024)",
+  "description": "Premium laptop with 15-inch display, Intel i9, 32GB RAM, 1TB SSD, updated specs",
+  "price": 2799.99,
+  "stock": 200,
+  "image_url": "https://example.com/dell-xps-15-2024.jpg",
+  "category_id": 1
+}
+
+###
+### GET ALL PRODUCTS
+GET {{baseUrl}}/products
+
+###
+### UPDATE ORDER STATUS TO PENDING
+PUT {{baseUrl}}/orders/1/status?new_status=pending
+Authorization: Bearer {{admin_token}}
+Content-Type: {{contentType}}
+
+###
+### UPDATE ORDER STATUS TO SHIPPED
+PUT {{baseUrl}}/orders/1/status?new_status=shipped
+Authorization: Bearer {{admin_token}}
+Content-Type: {{contentType}}
+
+###
+### UPDATE ORDER STATUS TO DELIVERED
+PUT {{baseUrl}}/orders/1/status?new_status=delivered
+Authorization: Bearer {{admin_token}}
+Content-Type: {{contentType}}
+
+###
+### UPDATE ORDER STATUS TO CANCELLED
+PUT {{baseUrl}}/orders/1/status?new_status=cancelled
+Authorization: Bearer {{admin_token}}
+Content-Type: {{contentType}}
+
+###
+### VIEW ORDER BY STATUS (Admin View)
+GET {{baseUrl}}/orders?status=pending
+Authorization: Bearer {{admin_token}}
+
+###
+### VIEW ALL ORDERS (Admin View)
+GET {{baseUrl}}/orders?skip=0&limit=20
+Authorization: Bearer {{admin_token}}
+
+###
+### DELETE PRODUCT (Admin Only)
+DELETE {{baseUrl}}/products/999
+Authorization: Bearer {{admin_token}}
+
+###
+### DELETE CATEGORY (Admin Only)
+DELETE {{baseUrl}}/categories/999
+Authorization: Bearer {{admin_token}}
+
+###
+### ERROR TEST: Create product without admin token
+POST {{baseUrl}}/products
+Content-Type: {{contentType}}
+
+{
+  "name": "Unauthorized Product",
+  "description": "This should fail",
+  "price": 999.99,
+  "stock": 10,
+  "image_url": "https://example.com/product.jpg",
+  "category_id": 1
+}
+
+###
+### ERROR TEST: Update order status without admin token
+PUT {{baseUrl}}/orders/1/status?new_status=shipped
+Authorization: Bearer <paste-customer-token-here>
+Content-Type: {{contentType}}
+
+###
+### ERROR TEST: Create category without admin token
+POST {{baseUrl}}/categories
+Content-Type: {{contentType}}
+
+{
+  "name": "Unauthorized Category",
+  "description": "This should fail"
+}

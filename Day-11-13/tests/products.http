@@ -1,0 +1,111 @@
+### Product & Category Endpoints Testing
+
+@baseUrl = http://localhost:8000
+@contentType = application/json
+@admin_token = <paste-admin-token-here>
+
+###
+### GET ALL CATEGORIES (No Auth Required)
+GET {{baseUrl}}/categories
+
+###
+### GET CATEGORY BY ID (No Auth Required)
+GET {{baseUrl}}/categories/1
+
+###
+### GET PRODUCTS IN CATEGORY (No Auth Required)
+GET {{baseUrl}}/categories/1/products
+
+###
+### GET ALL PRODUCTS (No Auth Required)
+GET {{baseUrl}}/products
+
+###
+### GET ALL PRODUCTS - WITH SEARCH
+GET {{baseUrl}}/products?search=laptop
+
+###
+### GET ALL PRODUCTS - WITH FILTERING BY PRICE
+GET {{baseUrl}}/products?min_price=100&max_price=2000
+
+###
+### GET ALL PRODUCTS - WITH SORTING
+GET {{baseUrl}}/products?sort_by=price&sort_order=asc
+
+###
+### GET ALL PRODUCTS - WITH PAGINATION
+GET {{baseUrl}}/products?skip=0&limit=5
+
+###
+### GET ALL PRODUCTS - COMBINED FILTERS
+GET {{baseUrl}}/products?category_id=1&min_price=500&max_price=1500&sort_by=price&sort_order=desc&skip=0&limit=10
+
+###
+### GET PRODUCT BY ID (No Auth Required)
+GET {{baseUrl}}/products/1
+
+### @name getProductId
+# Save product ID from response for later use
+@product_id = 1
+
+###
+### CREATE CATEGORY (Admin Only)
+POST {{baseUrl}}/categories
+Authorization: Bearer {{admin_token}}
+Content-Type: {{contentType}}
+
+{
+  "name": "Electronics",
+  "description": "Electronic devices and gadgets"
+}
+
+###
+### CREATE PRODUCT (Admin Only)
+POST {{baseUrl}}/products
+Authorization: Bearer {{admin_token}}
+Content-Type: {{contentType}}
+
+{
+  "name": "Laptop Pro",
+  "description": "High-performance laptop for professionals",
+  "price": 1299.99,
+  "stock": 50,
+  "image_url": "https://example.com/laptop.jpg",
+  "category_id": 1
+}
+
+###
+### UPDATE PRODUCT STOCK (Admin Only)
+PUT {{baseUrl}}/products/1
+Authorization: Bearer {{admin_token}}
+Content-Type: {{contentType}}
+
+{
+  "name": "Laptop Pro",
+  "description": "High-performance laptop with updated specs",
+  "price": 1299.99,
+  "stock": 100,
+  "image_url": "https://example.com/laptop.jpg",
+  "category_id": 1
+}
+
+###
+### UPDATE CATEGORY (Admin Only)
+PUT {{baseUrl}}/categories/1
+Authorization: Bearer {{admin_token}}
+Content-Type: {{contentType}}
+
+{
+  "name": "Electronics & Gadgets",
+  "description": "All electronic devices"
+}
+
+###
+### DELETE PRODUCT (Admin Only)
+DELETE {{baseUrl}}/products/999
+Authorization: Bearer {{admin_token}}
+
+###
+### DELETE CATEGORY (Admin Only)
+DELETE {{baseUrl}}/categories/999
+Authorization: Bearer {{admin_token}}

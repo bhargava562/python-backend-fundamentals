@@ -1,0 +1,148 @@
+### Review System Endpoints Testing (Purchase-Verified)
+
+@baseUrl = http://localhost:8000
+@contentType = application/json
+@token = <paste-customer-token-here>
+
+###
+### ATTEMPT REVIEW BEFORE DELIVERY (Should fail with 403)
+POST {{baseUrl}}/products/1/reviews
+Authorization: Bearer {{token}}
+Content-Type: {{contentType}}
+
+{
+  "rating": 5,
+  "comment": "Great product!"
+}
+
+###
+### GET REVIEWS FOR PRODUCT (Public endpoint, no auth required)
+GET {{baseUrl}}/products/1/reviews
+
+###
+### GET REVIEWS FOR PRODUCT - WITH PAGINATION
+GET {{baseUrl}}/products/1/reviews?skip=0&limit=10
+
+###
+### SIMULATE DELIVERY: Admin updates order to delivered status first
+### (Prerequisite: Order must be created and admin must update it to "delivered")
+PUT {{baseUrl}}/orders/1/status?new_status=delivered
+Authorization: Bearer <paste-admin-token-here>
+Content-Type: {{contentType}}
+
+###
+### CREATE REVIEW AFTER DELIVERY (Should succeed with 201)
+POST {{baseUrl}}/products/1/reviews
+Authorization: Bearer {{token}}
+Content-Type: {{contentType}}
+
+{
+  "rating": 5,
+  "comment": "Excellent product! Highly recommended!"
+}
+
+### @name createReview
+# Save review ID for update/delete operations
+@review_id = 1
+
+###
+### GET REVIEWS FOR PRODUCT (Including newly created review)
+GET {{baseUrl}}/products/1/reviews
+
+###
+### GET REVIEWS - Check Average Rating
+GET {{baseUrl}}/products/1/reviews?skip=0&limit=5
+
+###
+### UPDATE OWN REVIEW
+PUT {{baseUrl}}/reviews/1
+Authorization: Bearer {{token}}
+Content-Type: {{contentType}}
+
+{
+  "rating": 4,
+  "comment": "Good product, but could be better"
+}
+
+###
+### GET UPDATED REVIEW
+GET {{baseUrl}}/products/1/reviews
+
+###
+### ATTEMPT DUPLICATE REVIEW (Should fail with 400)
+POST {{baseUrl}}/products/1/reviews
+Authorization: Bearer {{token}}
+Content-Type: {{contentType}}
+
+{
+  "rating": 3,
+  "comment": "Another review attempt"
+}
+
+###
+### DELETE OWN REVIEW
+DELETE {{baseUrl}}/reviews/1
+Authorization: Bearer {{token}}
+
+###
+### VERIFY REVIEW DELETED
+GET {{baseUrl}}/products/1/reviews
+
+###
+### ERROR TEST: REVIEW WITHOUT TOKEN
+POST {{baseUrl}}/products/1/reviews
+Content-Type: {{contentType}}
+
+{
+  "rating": 5,
+  "comment": "Unauthorized review"
+}
+
+###
+### ERROR TEST: INVALID RATING (0)
+POST {{baseUrl}}/products/1/reviews
+Authorization: Bearer {{token}}
+Content-Type: {{contentType}}
+
+{
+  "rating": 0,
+  "comment": "Invalid rating"
+}
+
+###
+### ERROR TEST: INVALID RATING (6)
+POST {{baseUrl}}/products/1/reviews
+Authorization: Bearer {{token}}
+Content-Type: {{contentType}}
+
+{
+  "rating": 6,
+  "comment": "Invalid rating"
+}
+
+###
+### ERROR TEST: REVIEW NON-EXISTENT PRODUCT
+POST {{baseUrl}}/products/99999/reviews
+Authorization: Bearer {{token}}
+Content-Type: {{contentType}}
+
+{
+  "rating": 5,
+  "comment": "Review"
+}
+
+###
+### ERROR TEST: UPDATE SOMEONE ELSE'S REVIEW (403 Forbidden)
+PUT {{baseUrl}}/reviews/999
+Authorization: Bearer {{token}}
+Content-Type: {{contentType}}
+
+{
+  "rating": 2,
+  "comment": "Hacked review"
+}
+
+###
+### ERROR TEST: DELETE SOMEONE ELSE'S REVIEW (403 Forbidden)
+DELETE {{baseUrl}}/reviews/999
+Authorization: Bearer {{token}}

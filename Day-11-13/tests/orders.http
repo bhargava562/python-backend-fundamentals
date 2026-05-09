@@ -1,0 +1,108 @@
+### Order Management Endpoints Testing
+
+@baseUrl = http://localhost:8000
+@contentType = application/json
+@token = <paste-customer-token-here>
+@admin_token = <paste-admin-token-here>
+
+###
+### CHECKOUT - Create Order from Cart (ACID Transaction)
+POST {{baseUrl}}/orders
+Authorization: Bearer {{token}}
+Content-Type: {{contentType}}
+
+### @name checkoutOrder
+# After running this, save the order ID for later operations
+@order_id = 
+
+###
+### GET ORDER HISTORY
+GET {{baseUrl}}/orders
+Authorization: Bearer {{token}}
+
+###
+### GET ORDER HISTORY - WITH PAGINATION
+GET {{baseUrl}}/orders?skip=0&limit=10
+Authorization: Bearer {{token}}
+
+###
+### GET ORDER HISTORY - FILTER BY STATUS (Pending)
+GET {{baseUrl}}/orders?status=pending
+Authorization: Bearer {{token}}
+
+###
+### GET ORDER HISTORY - FILTER BY STATUS (Delivered)
+GET {{baseUrl}}/orders?status=delivered
+Authorization: Bearer {{token}}
+
+###
+### GET ORDER HISTORY - COMBINED FILTERS
+GET {{baseUrl}}/orders?skip=0&limit=5&status=pending
+Authorization: Bearer {{token}}
+
+###
+### UPDATE ORDER STATUS TO SHIPPED (Admin Only)
+PUT {{baseUrl}}/orders/1/status?new_status=shipped
+Authorization: Bearer {{admin_token}}
+Content-Type: {{contentType}}
+
+###
+### UPDATE ORDER STATUS TO DELIVERED (Admin Only)
+PUT {{baseUrl}}/orders/1/status?new_status=delivered
+Authorization: Bearer {{admin_token}}
+Content-Type: {{contentType}}
+
+###
+### CANCEL PENDING ORDER (User Owned)
+PUT {{baseUrl}}/orders/1/cancel
+Authorization: Bearer {{token}}
+Content-Type: {{contentType}}
+
+###
+### ERROR TEST: CHECKOUT WITH EMPTY CART
+POST {{baseUrl}}/orders
+Authorization: Bearer {{token}}
+Content-Type: {{contentType}}
+
+###
+### ERROR TEST: CHECKOUT WITHOUT TOKEN
+POST {{baseUrl}}/orders
+Content-Type: {{contentType}}
+
+###
+### ERROR TEST: CANCEL NON-EXISTENT ORDER
+PUT {{baseUrl}}/orders/99999/cancel
+Authorization: Bearer {{token}}
+Content-Type: {{contentType}}
+
+###
+### ERROR TEST: CANCEL ALREADY SHIPPED ORDER
+PUT {{baseUrl}}/orders/1/cancel
+Authorization: Bearer {{token}}
+Content-Type: {{contentType}}
+
+###
+### ERROR TEST: UPDATE STATUS WITHOUT ADMIN TOKEN
+PUT {{baseUrl}}/orders/1/status?new_status=shipped
+Authorization: Bearer {{token}}
+Content-Type: {{contentType}}
+
+###
+### TRANSACTION SAFETY TEST: Add to cart, checkout, verify stock decreased
+# Step 1: Get product details before checkout
+GET {{baseUrl}}/products/1
+
+###
+### TRANSACTION SAFETY TEST: Checkout
+POST {{baseUrl}}/orders
+Authorization: Bearer {{token}}
+Content-Type: {{contentType}}
+
+###
+### TRANSACTION SAFETY TEST: Get product details after checkout (stock should decrease)
+GET {{baseUrl}}/products/1
+
+###
+### TRANSACTION SAFETY TEST: Verify cart is empty after checkout
+GET {{baseUrl}}/cart
+Authorization: Bearer {{token}}
