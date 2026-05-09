@@ -29,7 +29,11 @@ Content-Type: {{contentType}}
 
 ### @name customerLogin
 # Copy the 'access_token' value and paste below
-@customer_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyIiwicm9sZSI6ImN1c3RvbWVyIiwiZXhwIjoxNzc4MzE0MDQ3fQ.__7UUuA-Kcg-1M-aPCwCRuiOZv4JTU3yeKsdgKnEmF0
+@customer_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzIiwicm9sZSI6ImN1c3RvbWVyIiwiZXhwIjoxNzc4MzIyMTEzfQ.cU3jKR0G6dQ-U4MXdJtYkcIaK4LPI7VUoNn9rHRw0JE
+
+### @name adminLogin
+# Copy the 'access_token' value and paste below
+@admin_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwicm9sZSI6ImFkbWluIiwiZXhwIjoxNzc4MzIyMzEzfQ.vmND7RJ1uu0ah8CEA6Jew7rIye9-WEE7DP7zvR7bWM4
 
 ###
 ### STEP 3: BROWSE CATEGORIES
@@ -146,7 +150,7 @@ Content-Type: {{contentType}}
 
 ### @name adminLogin
 # Copy the 'access_token' value and paste below
-@admin_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwicm9sZSI6ImFkbWluIiwiZXhwIjoxNzc4MzEzODE4fQ.tP9Atq8ncbkyqRZ9L_P9erURSMGuBiltuY-XQJDgIqM
+@admin_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwicm9sZSI6ImFkbWluIiwiZXhwIjoxNzc4MzIyMzEzfQ.vmND7RJ1uu0ah8CEA6Jew7rIye9-WEE7DP7zvR7bWM4
 
 ###
 ### STEP 19: UPDATE ORDER TO SHIPPED (Admin only)
@@ -216,7 +220,7 @@ Content-Type: {{contentType}}
 
 ###
 ### STEP 28: DELETE REVIEW
-DELETE {{baseUrl}}/reviews/1
+DELETE {{baseUrl}}/reviews/2
 Authorization: Bearer {{customer_token}}
 
 ###

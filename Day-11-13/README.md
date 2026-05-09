@@ -13,6 +13,16 @@ This project demonstrates building a scalable e-commerce backend with:
 
 ---
 
+## 🎬 Workflow Demo
+
+<video src="docs/workflow.mp4" controls width="100%">
+  <a href="docs/workflow.mp4">Watch the workflow demo</a>
+</video>
+
+> Full walkthrough: Register → Browse → Add to Cart → Checkout → Review
+
+---
+
 ## 📚 Documentation
 
 All documentation is organized in the [`docs/`](docs/) directory for easy access and maintenance.
