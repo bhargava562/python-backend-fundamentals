@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Product List</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .product { border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Product Catalog</h1>
+    
+    {% if products %}
+        {% for product in products %}
+            <div class="product">
+                <!-- Accessing model fields just like objects -->
+                <h3>{{ product.title }}</h3>
+                <p><strong>Price:</strong> ${{ product.price }}</p>
+                <p><strong>Category:</strong> {{ product.category.name }}</p>
+                <p>{{ product.description }}</p>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>No products found. Go to the admin panel and add some!</p>
+    {% endif %}
+
+</body>
+</html>
