@@ -1,28 +1,36 @@
-# Django Fundamentals: Product Catalog System (Days 14-17)
+# Django Fundamentals & REST Framework (Days 14-17)
 
 ## 📌 Overview
-This project is a foundational Django web application built to demonstrate the core principles of the Django web framework. It implements a fully functional Product Catalog system using Django's Model-View-Template (MVT) architecture, an embedded SQLite database configured via Django's ORM, and the built-in Admin interface for seamless data management.
+This project serves as a comprehensive introduction to the Django ecosystem. It begins with a foundational web application utilizing Django's Model-View-Template (MVT) architecture for a Product Catalog, and evolves into a headless, robust REST API powered by the Django REST Framework (DRF) for a Blog management system.
 
 ## 🎯 Learning Objectives Achieved
-- **Framework Initialization:** Set up a Django project (`core`) with modular, multi-app architecture (`catalog`, `accounts`).
-- **MVT Architecture:** Implemented separation of concerns across Data Models, View Logic, and HTML Templates.
-- **Django ORM:** Designed relational database schemas utilizing `ForeignKey` for Many-to-One relationships.
-- **Admin Integration:** Registered models to the Django Admin panel for instant CRUD capabilities.
-- **Routing & Views:** Created custom URL patterns and function-based views to render dynamic database content to the frontend.
+- **Framework Initialization:** Set up a core Django project with modular, multi-app architecture (`catalog`, `accounts`, `blog`).
+- **MVT Architecture:** Implemented separation of concerns across Data Models, View Logic, and HTML Templates for server-rendered views.
+- **REST API Architecture:** Transitioned to headless backend logic using DRF Serializers, ViewSets, and Routers.
+- **Django ORM:** Designed relational schemas utilizing `ForeignKey` for Many-to-One relationships across multiple domains.
+- **Admin Integration:** Registered models to the built-in Admin panel for instant CMS capabilities.
+- **Advanced Querying:** Implemented pagination, text searching, and exact-match filtering for API endpoints.
 
 ---
 
 ## 🏗️ Project Structure
-The project is split into the main configuration directory and functional applications:
+The project is split into the main configuration directory and domain-specific applications:
 
 ```text
 Day-14-17/
-├── core/                   # Main project configuration (settings, urls, wsgi/asgi)
-├── catalog/                # Primary application for product management
+├── core/                   # Main project configuration (settings, global urls)
+├── catalog/                # Day 14: MVT application for product management
 │   ├── models.py           # Defines Category and Product tables
 │   ├── views.py            # Contains the product_list logic
 │   └── templates/          # Contains the list.html presentation layer
-├── accounts/               # Secondary application for user profile management
+├── accounts/               # Secondary MVT application for user management
+├── blog/                   # Day 15: DRF application for headless API
+│   ├── models.py           # Defines Author, Post, and Comment entities
+│   ├── serializers.py      # Transforms complex QuerySets into JSON 
+│   ├── views.py            # Contains ViewSets for rapid CRUD operations
+│   └── urls.py             # DRF DefaultRouter configurations
+├── tests/                  # Directory containing REST client HTTP test files
+│   └── day15_blog.http     # Test suite for the Blog API
 ├── comparison.md           # Technical comparison between Django and FastAPI
 ├── manage.py               # Django's command-line utility
 └── db.sqlite3              # Auto-generated SQLite database
@@ -58,12 +66,12 @@ source venv/bin/activate
 **3. Install Dependencies**
 
 ```bash
-pip install django
+pip install django djangorestframework django-filter
 
 ```
 
 **4. Apply Database Migrations**
-This will generate the SQLite database and create the necessary tables defined in `models.py`.
+This will generate the SQLite database and create the necessary tables defined in all apps.
 
 ```bash
 python manage.py makemigrations
@@ -90,24 +98,31 @@ python manage.py runserver
 
 ## 🖥️ Usage & Endpoints
 
-Once the server is running at `http://127.0.0.1:8000/`, you can access the following routes:
+Once the server is running at `http://127.0.0.1:8000/`, you can access the following systems:
 
 ### 1. The Admin Panel (`/admin/`)
 
-Log in using the superuser credentials created during setup. Here you can:
+Log in using the superuser credentials. Here you can perform manual CRUD operations on Categories, Products, Authors, Posts, and Comments.
 
-* Add, update, and delete **Categories**.
-* Add, update, and delete **Products**, assigning them to specific categories.
+### 2. The Product Catalog (MVT) (`/products/`)
 
-### 2. The Product Catalog (`/products/`)
+A dynamically generated server-rendered view that fetches all products via the ORM and displays them using the Django Template Language (DTL).
 
-A dynamically generated view that fetches all products from the database via the ORM and renders them using the Django Template Language (DTL). If no products exist, it will prompt the user to add them via the Admin panel.
+### 3. The Blog API (DRF) (`/api/v1/`)
+
+Fully functional RESTful endpoints featuring nested serialization, search, and pagination. Access these via the DRF Browsable API or a REST Client:
+
+* **Authors:** `/api/v1/authors/`
+* **Posts:** `/api/v1/posts/` (Supports `?search=` and `?is_published=true`)
+* **Comments:** `/api/v1/comments/`
 
 ---
 
-## 💻 Django Shell Operations (ORM Practice)
+## 💻 Database Interaction & Testing
 
-The assignment required interaction with the Django database via the interactive shell. The following operations were tested and verified:
+### Django Shell Operations (ORM Practice)
+
+Interaction with the standard Django database via the interactive shell:
 
 ```python
 # Accessed via: python manage.py shell
@@ -115,20 +130,20 @@ The assignment required interaction with the Django database via the interactive
 from catalog.models import Category, Product
 
 # Create
-tech_category = Category.objects.create(name="Electronics")
-product = Product(title="Mechanical Keyboard", price=99.99, description="RGB lighting", category=tech_category)
+tech = Category.objects.create(name="Electronics")
+product = Product(title="Mechanical Keyboard", price=99.99, description="RGB", category=tech)
 product.save()
 
 # Read/Query
 all_products = Product.objects.all()
-filtered_products = Product.objects.filter(price__lt=100.00)
+filtered = Product.objects.filter(price__lt=100.00)
 
 # Update
 product.price = 89.99
 product.save()
 
-# Delete
-# product.delete()
-
 ```
 
+### DRF API Testing Suite
+
+Postman was bypassed in favor of VS Code REST Client files for better version control. The complete testing suite for creating, retrieving, updating, and deleting Authors, Posts, and Comments is located in `tests/day15_blog.http`.

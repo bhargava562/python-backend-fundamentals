@@ -1,0 +1,66 @@
+### DRF Blog API Testing Suite
+@baseUrl = http://127.0.0.1:8000/api/v1
+
+### 1. Create an Author
+POST {{baseUrl}}/authors/
+Content-Type: application/json
+
+{
+    "name": "Bhargava A",
+    "bio": "Product Engineer at Zenovox",
+    "email": "bhargava@example.com"
+}
+
+### 2. List Authors (with Search)
+GET {{baseUrl}}/authors/?search=Bhargava
+
+### 3. Create a Post (Validation Failure Test - Title too short)
+POST {{baseUrl}}/posts/
+Content-Type: application/json
+
+{
+    "title": "Hi",
+    "content": "This should fail validation.",
+    "author": 1
+}
+
+### 4. Create a Post (Success)
+POST {{baseUrl}}/posts/
+Content-Type: application/json
+
+{
+    "title": "Agentic AI Orchestration",
+    "content": "Exploring Gemini and GPT frameworks in modern architecture.",
+    "author": 1,
+    "is_published": true
+}
+
+### 5. Create a Comment
+POST {{baseUrl}}/comments/
+Content-Type: application/json
+
+{
+    "post": 1,
+    "author_name": "Tech Reviewer",
+    "body": "Great insights on multi-agent systems!"
+}
+
+### 6. Get All Posts (Demonstrating Nested Serializer & Pagination)
+GET {{baseUrl}}/posts/
+
+### 7. Filter Posts (Published only)
+GET {{baseUrl}}/posts/?is_published=true
+
+### 8. Search Posts
+GET {{baseUrl}}/posts/?search=Agentic
+
+### 9. Update a Post (PATCH)
+PATCH {{baseUrl}}/posts/1/
+Content-Type: application/json
+
+{
+    "title": "Agentic AI Orchestration V2"
+}
+
+### 10. Delete a Post
+DELETE {{baseUrl}}/posts/1/
