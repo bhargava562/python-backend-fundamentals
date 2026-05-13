@@ -1,0 +1,47 @@
+@baseUrl = http://127.0.0.1:8000/api
+# Replace this variable after logging in!
+@token = paste_your_access_token_here
+
+### 1. Register a New User
+POST {{baseUrl}}/auth/register/
+Content-Type: application/json
+
+{
+    "username": "admin_user",
+    "email": "admin@example.com",
+    "password": "SecurePassword123!",
+    "first_name": "System",
+    "last_name": "Admin"
+}
+
+### 2. Login (Get JWT Tokens)
+POST {{baseUrl}}/auth/login/
+Content-Type: application/json
+
+{
+    "username": "admin_user",
+    "password": "SecurePassword123!"
+}
+
+### 3. Access Protected Profile (Requires Token)
+GET {{baseUrl}}/profile/
+Authorization: Bearer {{token}}
+
+### 4. Create a Note (Requires Token)
+POST {{baseUrl}}/notes/
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "title": "Secret System Architecture",
+    "content": "This note belongs strictly to admin_user."
+}
+
+### 5. Access Without Token (Should return 401 Unauthorized)
+POST {{baseUrl}}/notes/
+Content-Type: application/json
+
+{
+    "title": "Hacker attempt",
+    "content": "Trying to bypass auth."
+}
