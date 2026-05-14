@@ -1,133 +1,92 @@
-<div align="center">
+# Python Backend Fundamentals
 
-# 🐍 Python Backend Fundamentals
+A structured, hands-on backend engineering repository built day by day, covering Python fundamentals, SQL, FastAPI, Django, authentication, API design, and production-style backend patterns.
 
-![Python](https://img.shields.io/badge/Python-3.12+-3776AB?style=for-the-badge&logo=python&logoColor=white)
-![Status](https://img.shields.io/badge/Status-Complete-brightgreen?style=for-the-badge)
-![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
-![Last Commit](https://img.shields.io/github/last-commit/bhargava562/python-backend-fundamentals?style=for-the-badge)
+## Current Coverage
 
-A structured, hands-on learning repository covering Python OOP, SQL, FastAPI, and production-grade data validation — built day by day.
+- Core Python and OOP fundamentals
+- SQL schema design and query practice
+- FastAPI from basics to production-style modules
+- Authentication and authorization patterns
+- Django fundamentals with DRF
+- Side-by-side FastAPI vs Django API implementation and comparison
 
-</div>
+## Repository Structure
 
----
-
-## 📁 Repository Structure
-
-```text
 python-backend-fundamentals/
-├── Day-1/ → Python Core (OOP, Decorators, Exceptions, Functional Programming)
-├── Day-2/ → Git Fundamentals (Cheat Sheets, Workflow, Branching)
-├── Day-3/ → SQL Mastery (Schema Design, Joins, Transactions, Normalization)
-├── Day-4/ → FastAPI Basics (REST API CRUD, Path/Query Params, In-memory DB)
-├── Day-5/ → Pydantic Mastery (Advanced Validation, CRUD Patterns, Nested Models)
-├── Day-6/ → ORM & Advanced CRUD (SQLAlchemy, Database Models, Query Optimization)
-├── Day-7/ → JWT Authentication (Token Management, Role-Based Access, Auth Routes)
-├── Day-8/ → OAuth 2.0 Integration (Google OAuth, Session Management, Security Hardening)
-├── Day-9/ → Advanced Query Optimization (Indexing, N+1 Queries, Caching Strategies)
-├── Day-10/ → Error Handling & Logging (Structured Logs, Error Recovery, Monitoring)
-└── Day-11-13/ → Production E-Commerce API
-    ├── Days 11-12: Product Management · Categories · Search/Filter/Sort
-    ├── Day 13: 🆕 Shopping Cart · ACID Transactions · Purchase-Verified Reviews
-    ├── 33 Total Endpoints · PostgreSQL · JWT + Role-Based Auth
-    └── Comprehensive Test Suite (18+ scenarios)
-```
 
----
+- Day-1: Python core foundations (OOP, decorators, type hints, exceptions)
+- Day-2: Git fundamentals and workflow cheat sheets
+- Day-3: SQL schema, joins, normalization, transactions
+- Day-4: FastAPI basics and initial API testing
+- Day-5: Pydantic validation patterns
+- Day-6: SQLAlchemy and advanced CRUD patterns
+- Day-7: JWT authentication workflows
+- Day-8: OAuth and security-focused API design
+- Day-9: FastAPI with MongoDB and async data access
+- Day-10: Error handling, logging, and debugging patterns
+- Day-11-13: Production-style e-commerce API (FastAPI + PostgreSQL)
+- Day-14-17: Django fundamentals and DRF progression
+- Day-16: DRF JWT auth and permission system module
+- Day-17: Same Task Manager API implemented in both FastAPI and Django with benchmark comparison
 
-## 🗓️ Progress Tracker
+## Progress Tracker
 
-| Day | Topics Covered | Status |
-|-----|---------------|--------|
-| [Day 1](./Day-1/README.md) | OOP · Inheritance · Decorators · Type Hints · Context Managers · Lambda | ✅ Complete |
-| [Day 2](./Day-2/README.md) | Git Setup · Branching · Stashing · Conventional Commits · Undoing Changes | ✅ Complete |
-| [Day 3](./Day-3/README.md) | SQL Schema · Joins · Aggregations · Advanced CTEs · Transactions · 3NF | ✅ Complete |
-| [Day 4](./Day-4/README.md) | FastAPI CRUD · Swagger UI · Query Parameters · Global Error Handling | ✅ Complete |
-| [Day 5](./Day-5/README.md) | Pydantic v2 · Custom Validators · Field Aliases · Nested Complex Models | ✅ Complete |
-| [Day 6](./Day-6/README.md) | SQLAlchemy ORM · Database Models · Relationships · Query Optimization · CRUD Operations | ✅ Complete |
-| [Day 7](./Day-7/README.md) | JWT Tokens · Access/Refresh Tokens · Role-Based Access · Auth Routes · Security Best Practices | ✅ Complete |
-| [Day 8](./Day-8/README.md) | OAuth 2.0 · Google OAuth Integration · Session Management · Credential Protection · Security Hardening | ✅ Complete |
-| [Day 9](./Day-9/README.md) | Query Optimization · N+1 Problem · Database Indexing · Caching Strategies | ✅ Complete |
-| [Day 10](./Day-10/README.md) | Error Handling · Structured Logging · Monitoring · Recovery Strategies | ✅ Complete |
-| [Day 11-12](./Day-11-13/README.md) | E-Commerce Backend · PostgreSQL · JWT Auth · Product Management · Search/Filter/Sort | ✅ Complete |
-| [Day 13](./Day-11-13/README.md) | 🆕 Shopping Cart · ACID Transactions · Inventory Management · Purchase-Verified Reviews | ✅ Complete |
+| Day/Module | Focus Area | Status |
+|---|---|---|
+| [Day-1](./Day-1/README.md) | Python OOP, decorators, typing, context managers | Complete |
+| [Day-2](./Day-2/README.md) | Git setup, branching, stashing, commit conventions | Complete |
+| [Day-3](./Day-3/README.md) | SQL design, joins, advanced queries, transactions | Complete |
+| [Day-4](./Day-4/README.md) | FastAPI CRUD and API testing foundations | Complete |
+| [Day-5](./Day-5/README.md) | Pydantic v2 validation and model design | Complete |
+| [Day-6](./Day-6/README.md) | SQLAlchemy ORM and service-style CRUD | Complete |
+| [Day-7](./Day-7/README.md) | JWT auth and protected route design | Complete |
+| [Day-8](./Day-8/README.md) | OAuth integration and API security hardening | Complete |
+| [Day-9](./Day-9/README.md) | MongoDB integration with FastAPI | Complete |
+| [Day-10](./Day-10/README.md) | Logging, error handling, observability basics | Complete |
+| [Day-11-13](./Day-11-13/README.md) | E-commerce backend with PostgreSQL and modular architecture | Complete |
+| [Day-14-17](./Day-14-17/README.md) | Django fundamentals, MVT, DRF ViewSets, routers | Complete |
+| [Day-16](./Day-16/README.md) | DRF JWT identity management and permissions | Complete |
+| [Day-17](./Day-17/README.md) | FastAPI vs Django Task Manager API with metrics and recommendations | Complete |
 
----
+## Latest Updates
 
-## ⚙️ Setup Instructions
+### Day-17 Highlight
 
-### Prerequisites
-- **Python:** 3.10 or higher
-- **Git:** Installed and configured
-- **Database:** MySQL/PostgreSQL (Optional for Day 3 SQL practice)
+[Day-17](./Day-17/README.md) includes a dual-framework implementation of the same Task Manager API:
 
-### 1️⃣ Clone & Navigate
-```bash
-git clone [https://github.com/bhargava562/python-backend-fundamentals.git](https://github.com/bhargava562/python-backend-fundamentals.git)
-cd python-backend-fundamentals
-```
+- FastAPI implementation
+- Django REST Framework implementation
+- Performance comparison report with measured local metrics
+- Feature comparison matrix
+- FastAPI vs Django use-case recommendations
 
-### 2️⃣ Environment Setup
-Each day's folder may have its own `requirements.txt`. For the later days (Day 4 & 5), ensure you install the dependencies:
-```bash
-# Example for Day 5
-cd Day-5
-python -m venv venv
-# Windows: venv\Scripts\activate | macOS/Linux: source venv/bin/activate
-pip install -r requirements.txt
-```
+### Django Track Consolidation
 
-### 3️⃣ Running Assignments
-- **Day 1-2:** Run individual scripts (e.g., `python Day-1/user.py`).
-- **Day 4:** Run the FastAPI server: `uvicorn app.main:app --reload`.
-- **Day 5:** Run the validation demo: `python app/main.py`.
-- **Day 11-13:** Production-grade E-Commerce API:
-  ```bash
-  cd Day-11-13
-  
-  # Setup database (PostgreSQL required)
-  python seed_postgres.py
-  
-  # Start server
-  uvicorn app.main:app --reload
-  
-  # Run comprehensive test suite (in another terminal)
-  python tests/test_day13_complex_logic.py
-  
-  # API Documentation: http://localhost:8000/docs
-  ```
+[Day-14-17](./Day-14-17/README.md), [Day-16](./Day-16/README.md), and [Day-17](./Day-17/README.md) together now represent a full Django learning path:
 
----
+- Core Django MVT fundamentals
+- DRF APIs and serializer/view architecture
+- JWT auth and granular permission controls
+- Framework comparison against FastAPI
 
-## 🚀 Day 13: Advanced E-Commerce Features
+## Setup Notes
 
-### What's Included
-✨ **Shopping Cart API** - Session-based cart with stock validation and auto-create functionality
-✨ **ACID Transactions** - All-or-nothing checkout with automatic rollback on errors
-✨ **Purchase-Verified Reviews** - Only verified buyers can review products
-✨ **Complete Test Suite** - 18+ scenarios covering all workflows and edge cases
+Each day/module may contain its own environment and dependency file.
 
-### 33 Total API Endpoints
-- 2 Auth endpoints (register, login)
-- 6 Category endpoints (CRUD + product listing)
-- 5 Product endpoints (CRUD + advanced search/filter/sort)
-- 5 Cart endpoints (view, add, update, delete, clear) 🆕
-- 4 Order endpoints (checkout, history, status update, cancel) 🆕
-- 4 Review endpoints (create, list, update, delete) 🆕
-- 2 Health check endpoints
+Recommended approach:
 
-### Documentation & Resources
-- 📖 [Day 13 Complete Implementation Guide](./Day-11-13/docs/DAY_13_COMPLETION_SUMMARY.md)
-- 🔧 [Day 13 Implementation Checklist](./Day-11-13/docs/DAY_13_IMPLEMENTATION_CHECKLIST.md)
-- 📋 [API Endpoints Reference (All 33)](./Day-11-13/docs/API_ENDPOINTS_REFERENCE.md)
-- 📚 [Documentation Hub](./Day-11-13/docs/INDEX.md)
+1. Enter the target day directory.
+2. Create or activate that day-specific virtual environment.
+3. Install dependencies from that day's requirements file when available.
+4. Run the module-specific README instructions.
 
----
+## Quick Access Links
 
-## 🤝 Contributing
-This is a personal learning repository tracking my backend engineering journey. Feel free to fork it for your own structured learning path.
+- Main Postman index: [POSTMAN_MASTER_INDEX.md](./POSTMAN_MASTER_INDEX.md)
+- E-commerce documentation hub: [Day-11-13/docs/INDEX.md](./Day-11-13/docs/INDEX.md)
+- Day-17 framework comparison: [Day-17/README.md](./Day-17/README.md)
 
-<div align="center">
-Made with ❤️ while learning Python — Chennai, India
-</div>
+## Contributing
+
+This is a personal learning repository documenting backend progress and architecture decisions. Forking for your own structured practice path is welcome.

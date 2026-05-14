@@ -1,0 +1,55 @@
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from .models import Task
+from .serializers import TaskSerializer
+
+
+class TaskListCreateView(APIView):
+	def get(self, request):
+		tasks = Task.objects.all()
+		serializer = TaskSerializer(tasks, many=True)
+		return Response(serializer.data, status=status.HTTP_200_OK)
+
+	def post(self, request):
+		serializer = TaskSerializer(data=request.data)
+		serializer.is_valid(raise_exception=True)
+		serializer.save()
+		return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class TaskDetailView(APIView):
+	def get_object(self, task_id):
+		try:
+			return Task.objects.get(id=task_id)
+		except Task.DoesNotExist:
+			return None
+
+	def get(self, request, task_id):
+		task = self.get_object(task_id)
+		if not task:
+			return Response({"detail": f"Task with ID {task_id} not found"}, status=status.HTTP_404_NOT_FOUND)
+		serializer = TaskSerializer(task)
+		return Response(serializer.data, status=status.HTTP_200_OK)
+
+	def put(self, request, task_id):
+		task = self.get_object(task_id)
+		if not task:
+			return Response({"detail": f"Task with ID {task_id} not found"}, status=status.HTTP_404_NOT_FOUND)
+		serializer = TaskSerializer(task, data=request.data)
+		serializer.is_valid(raise_exception=True)
+		serializer.save()
+		return Response(serializer.data, status=status.HTTP_200_OK)
+
+	def delete(self, request, task_id):
+		task = self.get_object(task_id)
+		if not task:
+			return Response({"detail": f"Task with ID {task_id} not found"}, status=status.HTTP_404_NOT_FOUND)
+		task.delete()
+		return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class HealthCheckView(APIView):
+	def get(self, request):
+		return Response({"status": "healthy", "service": "Task Manager API"}, status=status.HTTP_200_OK)
