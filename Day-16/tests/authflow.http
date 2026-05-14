@@ -1,6 +1,6 @@
 @baseUrl = http://127.0.0.1:8000/api
 # Replace this variable after logging in!
-@token = paste_your_access_token_here
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzc4NjUwMzQ5LCJpYXQiOjE3Nzg2NDY3NDksImp0aSI6Ijc3MDg3MGRjNmIzNzQyYWRiNjY5NGIwYTFhNGNjN2FiIiwidXNlcl9pZCI6IjEifQ.TJMViJ3bGtFIi2-1iIkym9II5VvIGjyVXzgKCs6FZg4
 
 ### 1. Register a New User
 POST {{baseUrl}}/auth/register/
