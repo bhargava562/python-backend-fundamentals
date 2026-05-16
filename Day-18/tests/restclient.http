@@ -1,0 +1,36 @@
+@baseUrl = http://127.0.0.1:8000
+
+### Root
+GET {{baseUrl}}/
+
+### Health check
+GET {{baseUrl}}/health
+
+### List items
+GET {{baseUrl}}/items
+
+### Create item
+POST {{baseUrl}}/items
+Content-Type: application/json
+
+{
+  "name": "Notebook",
+  "description": "A simple in-memory item",
+  "is_active": true
+}
+
+### Get item by id
+GET {{baseUrl}}/items/1
+
+### Update item by id
+PUT {{baseUrl}}/items/1
+Content-Type: application/json
+
+{
+  "name": "Updated Notebook",
+  "description": "Updated description",
+  "is_active": false
+}
+
+### Delete item by id
+DELETE {{baseUrl}}/items/1

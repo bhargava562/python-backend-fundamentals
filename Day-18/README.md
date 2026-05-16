@@ -17,3 +17,21 @@ This directory contains a small FastAPI application with in-memory CRUD endpoint
 ```bash
 uvicorn app.main:app --reload
 ```
+
+## Run with Docker Compose (Production Ready)
+
+To run the application along with its PostgreSQL database and Redis cache using Docker:
+
+1. Ensure Docker and Docker Desktop/Engine are installed and running.
+2. Build and start the containers:
+	```bash
+	docker-compose up -d --build
+	```
+3. Access the API documentation at http://localhost:8000/docs.
+
+To stop the application and tear down the containers:
+
+```bash
+docker-compose down
+```
+
