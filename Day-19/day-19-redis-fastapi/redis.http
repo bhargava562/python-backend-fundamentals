@@ -45,6 +45,9 @@ POST {{baseUrl}}/users/jobs/write-behind/process
 ### Rate limit (run multiple times)
 GET {{baseUrl}}/limited-endpoint
 
+### Advanced rate limit (run multiple times)
+GET {{baseUrl}}/rate-limited
+
 ### Redis practice - strings
 GET {{baseUrl}}/practice/strings
 

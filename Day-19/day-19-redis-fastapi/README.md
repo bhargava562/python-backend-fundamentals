@@ -139,6 +139,7 @@ The `/limited-endpoint` route uses Redis to count requests per client IP:
 
 ### Advanced Redis Features
 
+- `GET /rate-limited`
 - `POST /pubsub/publish?channel=demo&message=hello`
 - `GET /pubsub/subscribe?channel=demo&timeout=5`
 - `PUT /sessions/{session_id}`
@@ -171,6 +172,7 @@ curl -X PUT http://127.0.0.1:8000/users/1/write-behind \
 curl -X POST http://127.0.0.1:8000/users/jobs/write-behind/process
 
 curl http://127.0.0.1:8000/limited-endpoint
+curl http://127.0.0.1:8000/rate-limited
 
 curl http://127.0.0.1:8000/practice/strings
 curl http://127.0.0.1:8000/practice/lists

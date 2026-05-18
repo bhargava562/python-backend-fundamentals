@@ -6,12 +6,28 @@ import time
 import uuid
 from typing import Any, Dict
 
-from fastapi import APIRouter, HTTPException, Response
+from fastapi import APIRouter, HTTPException, Request, Response
 
 from ..database import get_redis
 
 
 router = APIRouter(tags=["advanced"])
+
+
+@router.get("/rate-limited")
+async def rate_limited_endpoint(request: Request) -> Dict[str, object]:
+    redis = await get_redis()
+    client_ip = request.client.host if request.client else "unknown"
+    key = f"rate_limit:{client_ip}"
+
+    requests = await redis.incr(key)  # INCR
+    if requests == 1:
+        await redis.expire(key, 60)  # EXPIRE
+
+    if requests > 5:
+        raise HTTPException(status_code=429, detail="Too Many Requests")
+
+    return {"message": "Success!", "request_count": requests}
 
 
 @router.post("/pubsub/publish")
@@ -125,42 +141,42 @@ async def cache_metrics() -> Dict[str, object]:
 
 @router.get("/metrics/dashboard")
 async def metrics_dashboard() -> Response:
-        html = """
-        <!DOCTYPE html>
-        <html lang=\"en\">
-        <head>
-            <meta charset=\"UTF-8\" />
-            <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />
-            <title>Redis Cache Metrics</title>
-            <style>
-                body { font-family: Arial, sans-serif; margin: 32px; }
-                .card { border: 1px solid #ddd; border-radius: 8px; padding: 16px; max-width: 520px; }
-                .row { display: flex; justify-content: space-between; margin: 6px 0; }
-                .muted { color: #666; font-size: 0.9em; }
-            </style>
-        </head>
-        <body>
-            <h1>Redis Cache Metrics</h1>
-            <div class=\"card\">
-                <div class=\"row\"><strong>Hits</strong><span id=\"hits\">-</span></div>
-                <div class=\"row\"><strong>Misses</strong><span id=\"misses\">-</span></div>
-                <div class=\"row\"><strong>Hit Rate</strong><span id=\"hit_rate\">-</span></div>
-                <div class=\"row\"><strong>Used Memory</strong><span id=\"memory\">-</span></div>
-                <div class=\"muted\">Refreshes every 5 seconds.</div>
-            </div>
-            <script>
-                async function refresh() {
-                    const res = await fetch('/metrics/cache');
-                    const data = await res.json();
-                    document.getElementById('hits').textContent = data.hits;
-                    document.getElementById('misses').textContent = data.misses;
-                    document.getElementById('hit_rate').textContent = data.hit_rate;
-                    document.getElementById('memory').textContent = data.memory.used_memory_human || '-';
-                }
-                refresh();
-                setInterval(refresh, 5000);
-            </script>
-        </body>
-        </html>
-        """
+    html = """
+    <!DOCTYPE html>
+    <html lang=\"en\">
+    <head>
+        <meta charset=\"UTF-8\" />
+        <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />
+        <title>Redis Cache Metrics</title>
+        <style>
+            body { font-family: Arial, sans-serif; margin: 32px; }
+            .card { border: 1px solid #ddd; border-radius: 8px; padding: 16px; max-width: 520px; }
+            .row { display: flex; justify-content: space-between; margin: 6px 0; }
+            .muted { color: #666; font-size: 0.9em; }
+        </style>
+    </head>
+    <body>
+        <h1>Redis Cache Metrics</h1>
+        <div class=\"card\">
+            <div class=\"row\"><strong>Hits</strong><span id=\"hits\">-</span></div>
+            <div class=\"row\"><strong>Misses</strong><span id=\"misses\">-</span></div>
+            <div class=\"row\"><strong>Hit Rate</strong><span id=\"hit_rate\">-</span></div>
+            <div class=\"row\"><strong>Used Memory</strong><span id=\"memory\">-</span></div>
+            <div class=\"muted\">Refreshes every 5 seconds.</div>
+        </div>
+        <script>
+            async function refresh() {
+                const res = await fetch('/metrics/cache');
+                const data = await res.json();
+                document.getElementById('hits').textContent = data.hits;
+                document.getElementById('misses').textContent = data.misses;
+                document.getElementById('hit_rate').textContent = data.hit_rate;
+                document.getElementById('memory').textContent = data.memory.used_memory_human || '-';
+            }
+            refresh();
+            setInterval(refresh, 5000);
+        </script>
+    </body>
+    </html>
+    """
     return Response(content=html, media_type="text/html")
