@@ -1,0 +1,88 @@
+@baseUrl = http://127.0.0.1:8000
+
+### Products (cold cache)
+GET {{baseUrl}}/products
+
+### Products (warm cache)
+GET {{baseUrl}}/products
+
+### Product by id
+GET {{baseUrl}}/products/1
+
+### Search products
+GET {{baseUrl}}/search/products?q=mouse
+
+### User profile (cached)
+GET {{baseUrl}}/users/1
+
+### Update user (invalidate cache)
+PUT {{baseUrl}}/users/1
+Content-Type: application/json
+
+{
+  "name": "Ava Updated"
+}
+
+### Write-through update
+PUT {{baseUrl}}/users/1/write-through
+Content-Type: application/json
+
+{
+  "email": "ava.new@example.com"
+}
+
+### Write-behind update
+PUT {{baseUrl}}/users/1/write-behind
+Content-Type: application/json
+
+{
+  "name": "Queued Update"
+}
+
+### Process write-behind queue
+POST {{baseUrl}}/users/jobs/write-behind/process
+
+### Rate limit (run multiple times)
+GET {{baseUrl}}/limited-endpoint
+
+### Redis practice - strings
+GET {{baseUrl}}/practice/strings
+
+### Redis practice - lists
+GET {{baseUrl}}/practice/lists
+
+### Redis practice - sets
+GET {{baseUrl}}/practice/sets
+
+### Redis practice - hashes
+GET {{baseUrl}}/practice/hashes
+
+### Redis practice - sorted sets
+GET {{baseUrl}}/practice/sorted-sets
+
+### Pub/Sub publish
+POST {{baseUrl}}/pubsub/publish?channel=demo&message=hello
+
+### Pub/Sub subscribe
+GET {{baseUrl}}/pubsub/subscribe?channel=demo&timeout=5
+
+### Session store - save
+PUT {{baseUrl}}/sessions/demo
+Content-Type: application/json
+
+{
+  "user_id": 1,
+  "role": "admin"
+}
+
+### Session store - fetch
+GET {{baseUrl}}/sessions/demo
+
+### Distributed lock - acquire
+POST {{baseUrl}}/locks/report/acquire?ttl=10
+
+### Cache metrics
+GET {{baseUrl}}/metrics/cache
+
+### Metrics dashboard (HTML)
+GET {{baseUrl}}/metrics/dashboard
