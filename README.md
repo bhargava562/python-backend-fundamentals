@@ -10,6 +10,8 @@ A structured, hands-on backend engineering repository built day by day, covering
 - Authentication and authorization patterns
 - Django fundamentals with DRF
 - Side-by-side FastAPI vs Django API implementation and comparison
+- Advanced backend patterns: containerization, async programming, caching, task queues
+- Production-ready microservices and deployment strategies
 
 ## Repository Structure
 
@@ -29,6 +31,10 @@ python-backend-fundamentals/
 - Day-14-17: Django fundamentals and DRF progression
 - Day-16: DRF JWT auth and permission system module
 - Day-17: Same Task Manager API implemented in both FastAPI and Django with benchmark comparison
+- Day-18: Docker containerization and deployment strategies
+- Day-19: Redis caching and real-time operations
+- Day-20: Celery task queues and async job processing
+- Day-21: Asynchronous programming in FastAPI (performance-optimized backends)
 
 ## Progress Tracker
 
@@ -48,27 +54,35 @@ python-backend-fundamentals/
 | [Day-14-17](./Day-14-17/README.md) | Django fundamentals, MVT, DRF ViewSets, routers | Complete |
 | [Day-16](./Day-16/README.md) | DRF JWT identity management and permissions | Complete |
 | [Day-17](./Day-17/README.md) | FastAPI vs Django Task Manager API with metrics and recommendations | Complete |
+| [Day-18](./Day-18/README.md) | Docker containerization and deployment practices | Complete |
+| [Day-19](./Day-19/README.md) | Redis caching and real-time data operations | Complete |
+| [Day-20](./Day-20/README.md) | Celery task queues and async job processing | Complete |
+| [Day-21](./Day-21/README.md) | Asynchronous programming in FastAPI (4.9x-50x performance improvement) | ✅ Complete |
 
 ## Latest Updates
 
-### Day-17 Highlight
+### Day-21 Highlight: Asynchronous Programming in FastAPI ⚡
 
-[Day-17](./Day-17/README.md) includes a dual-framework implementation of the same Task Manager API:
+[Day-21](./Day-21/README.md) is a comprehensive, production-ready async programming implementation:
 
-- FastAPI implementation
-- Django REST Framework implementation
-- Performance comparison report with measured local metrics
-- Feature comparison matrix
-- FastAPI vs Django use-case recommendations
+- **9 async endpoints** demonstrating concurrent patterns
+- **4.9x-96x performance improvement** (verified testing)
+- **AsyncDatabase class** with proper lifecycle management
+- **WebSocket support** for real-time communication
+- **Error handling** with `return_exceptions=True` pattern
+- **Load testing framework** for performance benchmarking
+- **1200+ lines** comprehensive documentation
 
-### Django Track Consolidation
+**Key Achievement**: Building backends that handle 50x more concurrent users through asynchronous programming.
 
-[Day-14-17](./Day-14-17/README.md), [Day-16](./Day-16/README.md), and [Day-17](./Day-17/README.md) together now represent a full Django learning path:
+### Day-17-20 Advanced Patterns Track
 
-- Core Django MVT fundamentals
-- DRF APIs and serializer/view architecture
-- JWT auth and granular permission controls
-- Framework comparison against FastAPI
+[Day-17](./Day-17/README.md) through [Day-20](./Day-20/README.md) represent production-ready patterns:
+
+- **Day-17**: FastAPI vs Django framework comparison
+- **Day-18**: Docker containerization and deployment
+- **Day-19**: Redis caching and real-time operations
+- **Day-20**: Celery task queues and async jobs
 
 ## Setup Notes
 
@@ -86,6 +100,7 @@ Recommended approach:
 - Main Postman index: [POSTMAN_MASTER_INDEX.md](./POSTMAN_MASTER_INDEX.md)
 - E-commerce documentation hub: [Day-11-13/docs/INDEX.md](./Day-11-13/docs/INDEX.md)
 - Day-17 framework comparison: [Day-17/README.md](./Day-17/README.md)
+- Day-21 async programming guide: [Day-21/README.md](./Day-21/README.md) ⚡ **4.9x-50x performance improvement**
 
 ## Contributing
 
