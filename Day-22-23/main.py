@@ -8,9 +8,10 @@ It shows practical backend scenarios and how to choose the right data structure.
 
 from fastapi import FastAPI, HTTPException, status, Query
 from pydantic import BaseModel, EmailStr, Field
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Tuple
 from datetime import datetime
 import uvicorn
+import random
 
 # Import our custom data structures and systems
 from data_structures import (
@@ -22,6 +23,16 @@ from data_structures import (
     SocialGraph
 )
 from backend_systems import LRUCache, SlidingWindowRateLimiter, DistributedCacheLayer
+
+# Import algorithms and optimization modules
+from algorithms import (
+    binary_search_products,
+    merge_sort_orders,
+    bubble_sort_orders,
+    max_revenue_sliding_window,
+    find_user_pair_with_target_score
+)
+from backend_optimization import flatten_categories_iterative
 
 # ==================== PYDANTIC MODELS ====================
 
@@ -103,6 +114,17 @@ categories_map: Dict[int, CategoryNode] = {}
 
 # Permission manager for RBAC
 permission_manager = PermissionManager()
+
+# --- Algorithm-Specific Data Structures ---
+# Pre-sorted inventory for binary search (O(log n) operations)
+INVENTORY_DB: List[Dict[str, any]] = sorted(
+    [{"sku": f"SKU-{str(i).zfill(5)}", "name": f"Product Item {i}", "price": round(random.uniform(10.0, 500.0), 2)} 
+     for i in range(1000)],
+    key=lambda x: x["sku"]
+)
+
+# Sample historical revenue for sliding window analytics
+HISTORICAL_REVENUE_STREAM: List[float] = [random.uniform(500.0, 15000.0) for _ in range(365)]
 
 
 # ==================== INITIALIZATION ====================
@@ -565,6 +587,118 @@ async def reset_rate_limiter(user_id: Optional[str] = None):
     else:
         api_limiter.reset_all()
         return {"message": "Rate limit reset for all users"}
+
+
+# ==================== ALGORITHM OPTIMIZATION ENDPOINTS ====================
+
+@app.get("/inventory/search")
+async def ordered_sku_lookup(sku: str = Query(..., description="Target stock keeping unit barcode format identifier")):
+    """
+    Performs an O(log n) Binary Search across the pre-sorted internal array.
+    
+    Algorithm: Binary Search
+    Time Complexity: O(log n)
+    Space Complexity: O(1)
+    Use Case: High-frequency inventory lookups against cached product database
+    """
+    product = binary_search_products(INVENTORY_DB, sku)
+    if not product:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Target tracking asset not found"
+        )
+    return {
+        "execution_strategy": "Binary Search O(log n)",
+        "data": product
+    }
+
+
+@app.get("/orders/sorted")
+async def sorted_orders_ledger(method: str = Query("merge", description="Sorting algorithm type: 'merge' or 'bubble'")):
+    """
+    Returns sorted billing distributions via the selected sorting technique.
+    
+    Demonstrates algorithm trade-offs:
+    - merge: Stable, O(n log n) - recommended for production
+    - bubble: Educational, O(n²) - disabled for large datasets
+    
+    Time Complexity: O(n log n) for merge, O(n²) for bubble
+    """
+    # Generate sample orders
+    sample_orders = [
+        {"order_id": f"ORD-{i}", "timestamp": random.uniform(1700000000, 1710000000), "amount": round(random.uniform(20, 1000), 2)}
+        for i in range(min(500, len(background_tasks.queue)))  # Use reasonable dataset size
+    ]
+    if not sample_orders:
+        sample_orders = [
+            {"order_id": f"ORD-{i}", "timestamp": random.uniform(1700000000, 1710000000), "amount": round(random.uniform(20, 1000), 2)}
+            for i in range(100)
+        ]
+    
+    if method == "merge":
+        sorted_data = merge_sort_orders(sample_orders)
+        strategy = "Merge Sort O(n log n)"
+    elif method == "bubble":
+        # Bounded guard rails to prevent local server locks
+        if len(sample_orders) > 1000:
+            raise HTTPException(
+                status_code=400,
+                detail="Payload configuration too large for quadratic processing loops"
+            )
+        sorted_data = bubble_sort_orders(sample_orders)
+        strategy = "Bubble Sort O(n²)"
+    else:
+        # Default fallback optimization mechanism
+        sorted_data = sorted(sample_orders, key=lambda x: x["timestamp"])
+        strategy = "Built-in Timsort O(n log n)"
+        
+    return {
+        "strategy": strategy,
+        "total_records": len(sorted_data),
+        "sample": sorted_data[:5]
+    }
+
+
+@app.get("/categories/flattened")
+async def flat_catalog_manifest():
+    """
+    Processes deep hierarchical object maps into flat structures using iterative stack traversal.
+    
+    Algorithm: Iterative DFS Traversal
+    Time Complexity: O(n) where n is total categories
+    Space Complexity: O(n)
+    Use Case: Converting nested category hierarchies to flat structures for APIs
+    """
+    if category_root is None:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Category hierarchy not initialized"
+        )
+    
+    flattened_manifest = flatten_categories_iterative(category_root.__dict__)
+    return {
+        "execution_strategy": "Iterative Depth-First Traversal O(n)",
+        "catalog": flattened_manifest
+    }
+
+
+@app.get("/analytics/rolling-revenue")
+async def analytics_rolling_window(window: int = Query(7, ge=1, le=90)):
+    """
+    Applies fixed sliding window calculation logic to extract maximum historical sales data.
+    
+    Algorithm: Sliding Window Pointer Technique
+    Time Complexity: O(n)
+    Space Complexity: O(1)
+    Use Case: Rolling metrics, financial analytics dashboards, streaming throughput
+    """
+    max_val = max_revenue_sliding_window(HISTORICAL_REVENUE_STREAM, window)
+    return {
+        "execution_strategy": "Sliding Window Pointer Matrix O(n)",
+        "timeframe_days_window": window,
+        "max_peak_revenue": round(max_val, 2),
+        "dataset_size": len(HISTORICAL_REVENUE_STREAM)
+    }
 
 
 # ==================== HEALTH CHECK ====================

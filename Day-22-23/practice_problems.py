@@ -455,6 +455,81 @@ class QueueWithStacks:
         return self.stack2.pop() if self.stack2 else -1
 
 
+# ==================== PROBLEM 13: REMOVE DUPLICATES FROM SORTED ARRAY ====================
+"""
+Problem: Remove duplicates from sorted array in-place.
+
+Example:
+    nums = [1, 1, 2, 2, 3, 4, 4, 5]
+    After: [1, 2, 3, 4, 5, ...]
+    Return: 5 (number of unique elements)
+
+Constraints:
+    - In-place modification
+    - Return count of unique elements
+    - Can't use extra data structures
+
+Technique: Two-Pointer
+Time Complexity: O(n)
+Space Complexity: O(1)
+"""
+
+def remove_duplicates_from_sorted_array(nums: List[int]) -> int:
+    """
+    Two-Pointer Deduplication.
+    Modifies input array in-place to remove duplicates.
+    """
+    if not nums:
+        return 0
+    
+    write_index = 1
+    for read_index in range(1, len(nums)):
+        if nums[read_index] != nums[read_index - 1]:
+            nums[write_index] = nums[read_index]
+            write_index += 1
+    
+    return write_index
+
+
+# ==================== PROBLEM 14: LONGEST SUBSTRING WITHOUT REPEATING CHARACTERS ====================
+"""
+Problem: Find length of longest substring without repeating characters.
+
+Example:
+    s = "abcabcbb" -> 3 (substring "abc")
+    s = "bbbbb" -> 1
+    s = "pwwkew" -> 3
+
+Technique: Variable Sliding Window
+Time Complexity: O(n)
+Space Complexity: O(min(m, n)) for character set (m=alphabet size)
+
+Backend Use Case:
+- Session token validation
+- Cache key uniqueness
+- Token deduplication in streams
+"""
+
+def length_of_longest_substring_variable_window(s: str) -> int:
+    """
+    Finds the length of the longest substring without repeating characters.
+    Uses variable sliding window technique with character set tracking.
+    """
+    seen_chars = set()
+    left_pointer = 0
+    max_length = 0
+    
+    for right_pointer in range(len(s)):
+        while s[right_pointer] in seen_chars:
+            seen_chars.remove(s[left_pointer])
+            left_pointer += 1
+        
+        seen_chars.add(s[right_pointer])
+        max_length = max(max_length, right_pointer - left_pointer + 1)
+    
+    return max_length
+
+
 # ==================== TEST CASES ====================
 
 def run_tests():
@@ -522,6 +597,21 @@ def run_tests():
     assert q.dequeue() == 1
     assert q.dequeue() == 2
     assert q.dequeue() == 3
+    print("  Passed!")
+    
+    # Problem 13: Remove Duplicates from Sorted Array
+    print("\n✓ Problem 13: Remove Duplicates from Sorted Array")
+    arr = [1, 1, 2, 2, 3, 4, 4, 5]
+    count = remove_duplicates_from_sorted_array(arr)
+    assert count == 5
+    assert arr[:count] == [1, 2, 3, 4, 5]
+    print("  Passed!")
+    
+    # Problem 14: Longest Substring Without Repeating Characters
+    print("\n✓ Problem 14: Longest Substring Without Repeating Characters")
+    assert length_of_longest_substring_variable_window("abcabcbb") == 3
+    assert length_of_longest_substring_variable_window("bbbbb") == 1
+    assert length_of_longest_substring_variable_window("pwwkew") == 3
     print("  Passed!")
     
     print("\n" + "=" * 50)
