@@ -1,0 +1,221 @@
+version: '3.8'
+
+# ============================================
+# Zenovox Production System Docker Stack
+# ============================================
+# Services:
+# - PostgreSQL: Relational database
+# - Redis: Cache and message broker
+# - FastAPI Web: Main API service
+# - Celery Worker: Background task processor
+
+networks:
+  zenovox-mesh:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
+
+volumes:
+  postgres_persistent_data:
+    driver: local
+  redis_persistent_cache:
+    driver: local
+
+services:
+  # ============================================
+  # PostgreSQL Database Service
+  # ============================================
+  db:
+    image: postgres:16-alpine
+    container_name: zenovox_postgres_prod
+    restart: unless-stopped
+    
+    environment:
+      POSTGRES_USER: postgres_user
+      POSTGRES_PASSWORD: postgres_password
+      POSTGRES_DB: zenovox_db
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=en_US.UTF-8"
+    
+    ports:
+      - "5432:5432"
+    
+    volumes:
+      - postgres_persistent_data:/var/lib/postgresql/data
+    
+    networks:
+      - zenovox-mesh
+    
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres_user -d zenovox_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    
+    command: >
+      postgres
+      -c shared_buffers=256MB
+      -c effective_cache_size=1GB
+      -c maintenance_work_mem=64MB
+      -c checkpoint_completion_target=0.9
+      -c wal_buffers=16MB
+      -c default_statistics_target=100
+      -c random_page_cost=1.1
+      -c effective_io_concurrency=200
+    
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ============================================
+  # Redis Cache & Message Broker
+  # ============================================
+  redis:
+    image: redis:7-alpine
+    container_name: zenovox_redis_prod
+    restart: unless-stopped
+    
+    ports:
+      - "6379:6379"
+    
+    volumes:
+      - redis_persistent_cache:/data
+    
+    networks:
+      - zenovox-mesh
+    
+    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru
+    
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ============================================
+  # FastAPI Web Application
+  # ============================================
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        BUILDKIT_INLINE_CACHE: 1
+    
+    container_name: zenovox_api_service
+    restart: unless-stopped
+    
+    ports:
+      - "8000:8000"
+    
+    environment:
+      - ENV=production
+      - PROJECT_NAME="Zenovox Production API"
+      - VERSION=1.0.0
+      - DATABASE_URL=postgresql+asyncpg://postgres_user:postgres_password@db:5432/zenovox_db
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - SECRET_KEY=production-secret-key-change-me-12345
+      - ALLOWED_HOSTS=*
+      - RATE_LIMIT_RULE="100 per minute"
+    
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    
+    networks:
+      - zenovox-mesh
+    
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+  # ============================================
+  # Celery Background Task Worker
+  # ============================================
+  celery_worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    
+    container_name: zenovox_celery_worker
+    restart: unless-stopped
+    
+    command: celery -A app.worker.celery_app worker --loglevel=info --concurrency=4 --max-tasks-per-child=1000
+    
+    environment:
+      - ENV=production
+      - DATABASE_URL=postgresql+asyncpg://postgres_user:postgres_password@db:5432/zenovox_db
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - SECRET_KEY=production-secret-key-change-me-12345
+    
+    depends_on:
+      - redis
+      - db
+    
+    networks:
+      - zenovox-mesh
+    
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+  # ============================================
+  # Celery Beat Scheduler (Optional)
+  # ============================================
+  celery_beat:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    
+    container_name: zenovox_celery_beat
+    restart: unless-stopped
+    
+    command: celery -A app.worker.celery_app beat --loglevel=info
+    
+    environment:
+      - ENV=production
+      - DATABASE_URL=postgresql+asyncpg://postgres_user:postgres_password@db:5432/zenovox_db
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - SECRET_KEY=production-secret-key-change-me-12345
+    
+    depends_on:
+      - redis
+      - db
+    
+    networks:
+      - zenovox-mesh
+    
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
