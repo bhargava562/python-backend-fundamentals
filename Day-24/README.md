@@ -1,4 +1,4 @@
-# Zenovox: Production-Ready Backend System - Complete Documentation
+# Production-Ready Backend System - Complete Documentation
 
 ## 📖 Table of Contents
 
@@ -20,7 +20,7 @@
 
 ## Overview
 
-**Zenovox** is a comprehensive, production-ready backend system demonstrating modern industry best practices for building scalable, secure, and maintainable APIs. This project synthesizes all Day 1-23 learning objectives into a complete, deployable system.
+**Zen** is a comprehensive, production-ready backend system demonstrating modern industry best practices for building scalable, secure, and maintainable APIs. This project synthesizes all Day 1-23 learning objectives into a complete, deployable system.
 
 ### Key Features
 
