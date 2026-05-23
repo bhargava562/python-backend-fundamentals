@@ -181,8 +181,8 @@ open http://localhost:8000/docs
 
 **Verify Setup:**
 ```bash
-# Check database
-docker exec zenovox_postgres_prod psql -U postgres -d myappdb -c "SELECT 1"
+# Check database (using postgres_user credentials)
+docker exec zenovox_postgres_prod psql -U postgres_user -d zenovox_db -c "SELECT 1"
 
 # Check Redis
 docker exec zenovox_redis_prod redis-cli ping
@@ -333,10 +333,10 @@ ENV=development                    # Environment: development, staging, producti
 PROJECT_NAME="Zenovox..."         # Project display name
 VERSION=1.0.0                      # Application version
 
-# Database Configuration
-DATABASE_URL=postgresql+asyncpg://postgres:postgres@localhost:5432/myappdb
+# Database Configuration - MATCHES docker-compose.yml PostgreSQL service
+DATABASE_URL=postgresql+asyncpg://postgres_user:postgres_password@localhost:5432/zenovox_db
 
-# Redis Configuration
+# Redis Configuration - MATCHES docker-compose.yml Redis service
 REDIS_URL=redis://localhost:6379/0
 
 # Celery Configuration
@@ -758,18 +758,18 @@ USER apprunner
 
 ### PostgreSQL Setup
 
-**Connection Details (from .env):**
+**Connection Details (from .env and docker-compose.yml):**
 ```
 Host: localhost
 Port: 5432
-User: postgres
-Password: postgres
-Database: myappdb
+User: postgres_user
+Password: postgres_password
+Database: zenovox_db
 ```
 
 **Connection String:**
 ```
-postgresql+asyncpg://postgres:postgres@localhost:5432/myappdb
+postgresql+asyncpg://postgres_user:postgres_password@localhost:5432/zenovox_db
 ```
 
 ### Tables
@@ -821,28 +821,28 @@ python -c "from app.database import init_db; import asyncio; asyncio.run(init_db
 **Backup Database:**
 ```bash
 # Docker container
-docker exec zenovox_postgres_prod pg_dump -U postgres myappdb > backup.sql
+docker exec zenovox_postgres_prod pg_dump -U postgres_user zenovox_db > backup.sql
 
 # System-installed PostgreSQL
-pg_dump -U postgres myappdb > backup.sql
+pg_dump -U postgres_user zenovox_db > backup.sql
 ```
 
 **Restore Database:**
 ```bash
 # Docker container
-docker exec -i zenovox_postgres_prod psql -U postgres myappdb < backup.sql
+docker exec -i zenovox_postgres_prod psql -U postgres_user zenovox_db < backup.sql
 
 # System-installed PostgreSQL
-psql -U postgres myappdb < backup.sql
+psql -U postgres_user zenovox_db < backup.sql
 ```
 
 **Connect to Database:**
 ```bash
 # Docker container
-docker exec -it zenovox_postgres_prod psql -U postgres -d myappdb
+docker exec -it zenovox_postgres_prod psql -U postgres_user -d zenovox_db
 
 # System-installed PostgreSQL
-psql -U postgres -d myappdb
+psql -U postgres_user -d zenovox_db
 ```
 
 ---
@@ -1224,10 +1224,10 @@ taskkill /PID <PID> /F
 **Test Connection:**
 ```bash
 # Docker container
-docker exec zenovox_postgres_prod psql -U postgres -c "SELECT 1"
+docker exec zenovox_postgres_prod psql -U postgres_user -d zenovox_db -c "SELECT 1"
 
 # System PostgreSQL
-psql -U postgres -c "SELECT 1"
+psql -U postgres_user -d zenovox_db -c "SELECT 1"
 ```
 
 **Common Issues:**
@@ -1290,7 +1290,7 @@ docker stats
 docker exec zenovox_api_service top
 
 # Check database connections
-docker exec zenovox_postgres_prod psql -U postgres -c "SELECT count(*) FROM pg_stat_activity"
+docker exec zenovox_postgres_prod psql -U postgres_user -d zenovox_db -c "SELECT count(*) FROM pg_stat_activity"
 ```
 
 **Solutions:**
