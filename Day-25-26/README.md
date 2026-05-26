@@ -1,889 +1,1045 @@
-# Days 25–26: Research & Advanced Backend Topics
+# Day 26 — Performance, Scaling & Advanced Backend Research
 
-This README is a **structured, ordered** version of my Days 25–26 learnings.
+This README contains **only Day 26** research.
 
-The key mindset shift:
+Day 25 content has been moved to [Day-25-research.md](Day-25-research.md).
 
-- Beginners learn **technology-first** (“What is GraphQL/Kubernetes/gRPC?”)
-- Senior engineers learn **problem-first** (“What pain exists? What scale exists? What breaks? What slows teams down? What costs money? What hurts users?”)
+---
 
-Technology choices come **after** understanding business pain, scale, and tradeoffs.
+## Day 26 Assignment (Given)
+
+### Learning Objectives
+
+- Learn performance optimization techniques
+- Understand horizontal vs vertical scaling
+- Master database query optimization
+
+### YouTube Search Terms
+
+- "Database query optimization"
+- "Scaling web applications"
+- "Database indexing explained"
+- "Load balancing tutorial"
+- "Caching strategies backend"
+- "N+1 query problem solution"
+
+### Recommended Channels
+
+- Hussein Nasser
+- Web Dev Simplified
+- ArjanCodes
+- Fireship
+
+### Tasks
+
+- Watch performance + scaling tutorials (~3 hours)
+- Learn database optimization
+	- Query optimization techniques
+	- `EXPLAIN ANALYZE` for query plans
+	- Index creation and types (B-tree, Hash, GIN)
+	- When to add indexes vs overhead
+	- Composite indexes
+	- Covering indexes
+- Solve common database problems
+	- N+1 query problem and solutions
+	- Slow JOIN queries optimization
+	- Pagination performance
+	- Full-text search optimization
+	- Database connection pooling
+- Learn caching strategies
+	- Cache invalidation patterns
+	- Cache-aside vs write-through
+	- Distributed caching
+	- Cache stampede prevention
+	- When NOT to cache
+- Understand scaling concepts
+	- Vertical scaling (bigger server)
+	- Horizontal scaling (more servers)
+	- Load balancing strategies
+	- Sticky sessions
+	- Database replication (master-slave, master-master)
+	- Database sharding basics
+- Application-level optimization
+	- Profiling Python code
+	- Identify bottlenecks
+	- Optimize slow functions
+	- Memory usage optimization
+	- Asynchronous processing
+- Learn about CDN
+	- Content Delivery Networks
+	- Static asset optimization
+	- Image optimization
+	- Response compression (gzip)
+- Research monitoring tools
+	- Prometheus for metrics
+	- Grafana for visualization
+	- ELK stack for logs
+	- New Relic, DataDog (commercial APM)
+- Practice optimizations
+	- Add indexes to your database
+	- Optimize slow queries
+	- Implement query result caching
+	- Add database connection pooling
+	- Measure performance improvements
+- Create optimization guide
+	- Database optimization checklist
+	- Caching decision tree
+	- Performance monitoring setup
+	- Scaling strategy recommendations
+
+### Deliverables
+
+- Database optimization examples with before/after
+- Index creation strategy document
+- Performance benchmarks
+- Caching implementation improvements
+- Scaling strategy proposal
+- Monitoring setup (basic)
+- Optimization checklist
+- README with performance best practices
+
+---
+
+## How This README Is Written (Senior Engineer Style)
+
+This document prioritizes:
+
+- measurable bottlenecks (query plans, latency, throughput)
+- tradeoffs (read vs write, simplicity vs scale)
+- production constraints (failure modes, cache consistency, replication lag)
+
+Use it as both a study guide and an implementation checklist.
 
 ---
 
 ## Table of Contents
 
-- [Day 25 — Microservices Architecture & API Design](#day-25--microservices-architecture--api-design)
-- [Day 26 — Advanced Topics: Alternative API Styles, Trends, Observability, Security](#day-26--advanced-topics-alternative-api-styles-trends-observability-security)
-- [Industry Case Studies (Proof of Real-World Research)](#industry-case-studies-proof-of-real-world-research)
-- [The 6-Questions Framework (How to Learn Like a Senior Engineer)](#the-6-questions-framework-how-to-learn-like-a-senior-engineer)
-- [Comparison Matrices (Templates)](#comparison-matrices-templates)
-- [System Design Exercise: Food Delivery (Microservices Breakdown)](#system-design-exercise-food-delivery-microservices-breakdown)
-- [Deliverables Checklist](#deliverables-checklist)
-- [Sources Mentioned in Notes](#sources-mentioned-in-notes)
-
-
-## 1) Microservices vs Monolith (Problem-First)
-
-### What is a monolith?
-
-A monolith is:
-
-- **One backend application**
-- Usually **one database**
-- **One deployment**
-
-Analogy: one restaurant kitchen handling billing, cooking, packing, delivery coordination, and customer support.
-
-### Why monoliths exist (and why they’re often correct early)
-
-Monoliths are often the right starting point because they are:
-
-- Simple
-- Fast to build
-- Easy to debug
-- Cheap to operate
-- Great for small teams
-
-If you have “500 users, 2 developers, 1 product”, microservices are usually **complexity bigger than the business**.
-
-### What pain appears as a product grows?
-
-When many teams modify one codebase:
-
-- One deployment can break everything
-- Codebase becomes huge
-- Deployments slow down
-- Scaling the whole app becomes expensive
-- Teams collide (organizational friction)
-
-That pain (team + scaling + deployment risk) is what motivates microservices.
-
-### What are microservices?
-
-Instead of one giant app, split into independent services:
-
-- Auth
-- Payments
-- Notifications
-- Search
-- AI processing
-
-Each service tends to have:
-
-- Its own deployment
-- Its own scaling
-- Its own (often dedicated) data storage
-- Its own owning team
-
-### What microservices solve (business framing)
-
-| Business pain | Microservices help by |
-|---|---|
-| Teams collide | making services independently owned |
-| Slow deployments | enabling independent deploys |
-| Scaling everything is expensive | scaling only hot paths/services |
-| One bug kills the app | isolating failure domains |
-| Different tech needs | letting teams choose fit-for-purpose tech |
-
-### What microservices *create* (the non-negotiable cost)
-
-Microservices don’t remove complexity; they **move** it.
-
-- Monolith complexity: mostly **code complexity**
-- Microservice complexity: **network + distributed systems complexity**
-
-Instead of a function call you get:
-
-- Network latency
-- Timeouts
-- Partial failures
-- Retries + duplicate requests
-- Serialization overhead
-- Observability requirements (tracing becomes mandatory)
-
-### Senior engineer rule
-
-Never choose microservices because they sound modern.
-
-Choose them only when **monolith pain becomes bigger than distributed-system pain**.
-
-### Practical middle-ground: modular monolith
-
-A pattern that shows up in real startups:
-
-- One deployable app
-- Internally organized by strong modules/domains
-- Later, extract the modules that truly need independent scaling
-
-Example modular monolith for an AI job platform:
-
-| Module | Responsibility |
-|---|---|
-| Auth Module | login/JWT |
-| Resume Module | resume storage/parsing |
-| AI Module | resume analysis |
-| Job Tracking Module | applications |
-| Scheduler Module | interviews |
-| Notification Module | reminders |
+- [Day 26 — Performance, Scaling \& Advanced Backend Research](#day-26--performance-scaling--advanced-backend-research)
+  - [Day 26 Assignment (Given)](#day-26-assignment-given)
+    - [Learning Objectives](#learning-objectives)
+    - [YouTube Search Terms](#youtube-search-terms)
+    - [Recommended Channels](#recommended-channels)
+    - [Tasks](#tasks)
+    - [Deliverables](#deliverables)
+  - [How This README Is Written (Senior Engineer Style)](#how-this-readme-is-written-senior-engineer-style)
+  - [Table of Contents](#table-of-contents)
+  - [Author’s Perspective (Senior Mindset)](#authors-perspective-senior-mindset)
+  - [The Senior Research Framework (What/Why/How)](#the-senior-research-framework-whatwhyhow)
+  - [1) Performance Reality: Most Slowness Is Data Movement](#1-performance-reality-most-slowness-is-data-movement)
+  - [2) Database Optimization (Queries + Plans)](#2-database-optimization-queries--plans)
+    - [Why databases become bottlenecks](#why-databases-become-bottlenecks)
+    - [What makes queries slow (typical causes)](#what-makes-queries-slow-typical-causes)
+    - [Senior solution: use query plans, not guesses](#senior-solution-use-query-plans-not-guesses)
+  - [3) Indexing Strategies (B-Tree/Hash/GIN + Tradeoffs)](#3-indexing-strategies-b-treehashgin--tradeoffs)
+    - [Why indexes exist](#why-indexes-exist)
+    - [Common index types (PostgreSQL-oriented)](#common-index-types-postgresql-oriented)
+    - [The biggest indexing truth (tradeoff)](#the-biggest-indexing-truth-tradeoff)
+    - [Composite indexes](#composite-indexes)
+    - [Covering indexes](#covering-indexes)
+  - [4) ORM Pitfalls: The N+1 Query Problem](#4-orm-pitfalls-the-n1-query-problem)
+    - [The problem](#the-problem)
+    - [Why it happens](#why-it-happens)
+    - [Senior solutions](#senior-solutions)
+  - [5) Join Optimization + Denormalization Tradeoffs](#5-join-optimization--denormalization-tradeoffs)
+    - [Why joins become slow](#why-joins-become-slow)
+    - [Optimization strategies](#optimization-strategies)
+  - [6) Pagination Performance (Offset vs Cursor)](#6-pagination-performance-offset-vs-cursor)
+    - [Offset pagination](#offset-pagination)
+    - [Cursor pagination](#cursor-pagination)
+  - [7) Search at Scale (DB Full-Text vs Search Engines)](#7-search-at-scale-db-full-text-vs-search-engines)
+    - [Why `LIKE '%term%'` fails](#why-like-term-fails)
+    - [Senior solutions](#senior-solutions-1)
+  - [8) Connection Pooling (Why Systems Collapse Without It)](#8-connection-pooling-why-systems-collapse-without-it)
+  - [9) Caching \& Redis (Patterns, Invalidation, Stampedes)](#9-caching--redis-patterns-invalidation-stampedes)
+    - [Why caching exists](#why-caching-exists)
+    - [Common cache patterns](#common-cache-patterns)
+    - [The hardest part: cache invalidation](#the-hardest-part-cache-invalidation)
+    - [Cache stampede](#cache-stampede)
+    - [When not to cache](#when-not-to-cache)
+  - [10) Scaling (Vertical vs Horizontal) + Load Balancing](#10-scaling-vertical-vs-horizontal--load-balancing)
+    - [Vertical scaling](#vertical-scaling)
+    - [Horizontal scaling](#horizontal-scaling)
+    - [Load balancing](#load-balancing)
+  - [11) Replication \& Sharding (When Data Scaling Becomes Necessary)](#11-replication--sharding-when-data-scaling-becomes-necessary)
+    - [Replication](#replication)
+    - [Sharding](#sharding)
+  - [12) Application-Level Optimization (Measure First, Then Optimize)](#12-application-level-optimization-measure-first-then-optimize)
+  - [13) Asynchronous Processing (Responsiveness at Scale)](#13-asynchronous-processing-responsiveness-at-scale)
+  - [14) CDN + Compression (Latency and Bandwidth Engineering)](#14-cdn--compression-latency-and-bandwidth-engineering)
+  - [15) Monitoring \& Observability (Tools + Why They Matter)](#15-monitoring--observability-tools--why-they-matter)
+  - [16) API Styles and Realtime Tradeoffs (REST/GraphQL/gRPC/WebSockets/SSE)](#16-api-styles-and-realtime-tradeoffs-restgraphqlgrpcwebsocketssse)
+    - [REST](#rest)
+    - [GraphQL](#graphql)
+    - [gRPC](#grpc)
+    - [WebSockets vs SSE](#websockets-vs-sse)
+  - [17) Security for Production APIs (OWASP + Practical Controls)](#17-security-for-production-apis-owasp--practical-controls)
+  - [Practice Plan (Hands-On Optimizations)](#practice-plan-hands-on-optimizations)
+    - [A) Pick a workload + define success criteria](#a-pick-a-workload--define-success-criteria)
+    - [B) Baseline measurement (before)](#b-baseline-measurement-before)
+    - [C) Database query optimization loop](#c-database-query-optimization-loop)
+    - [D) Add connection pooling](#d-add-connection-pooling)
+    - [E) Add query result caching (carefully)](#e-add-query-result-caching-carefully)
+    - [F) Re-measure and summarize](#f-re-measure-and-summarize)
+  - [Optimization Guide (Checklists + Decision Tree)](#optimization-guide-checklists--decision-tree)
+    - [1) Database optimization checklist](#1-database-optimization-checklist)
+    - [2) Index creation strategy (document template)](#2-index-creation-strategy-document-template)
+    - [3) Cache decision tree](#3-cache-decision-tree)
+    - [4) Performance monitoring setup (basic)](#4-performance-monitoring-setup-basic)
+    - [5) Scaling strategy recommendations](#5-scaling-strategy-recommendations)
+  - [Industry Case Studies (How Big Systems Think)](#industry-case-studies-how-big-systems-think)
+    - [Netflix — observability and distributed debugging](#netflix--observability-and-distributed-debugging)
+    - [Meta — GraphQL for frontend productivity](#meta--graphql-for-frontend-productivity)
+    - [Google — gRPC + reliability discipline](#google--grpc--reliability-discipline)
+    - [Amazon — load balancing + gateways + scale engineering](#amazon--load-balancing--gateways--scale-engineering)
+    - [Swiggy/Zomato — ETA is business-critical](#swiggyzomato--eta-is-business-critical)
+  - [Final Takeaways](#final-takeaways)
+  - [Sources](#sources)
 
 ---
 
-## 2) Service Decomposition (Split by Business Capability)
+## Author’s Perspective (Senior Mindset)
 
-### Biggest beginner mistake
+Most beginners think backend performance means:
 
-Splitting “randomly” into tiny services like `UserService`, `UserProfileService`, `UserPreferenceService`, `UserImageService` creates chaos.
+```text
+"make code faster"
+```
 
-### Correct thinking
+Real backend engineering is deeper.
 
-Split by **business capability**.
+At scale, performance problems become:
 
-Example: Food delivery domains
+- infrastructure cost problems
+- user experience problems
+- database bottleneck problems
+- scaling problems
+- distributed systems problems
+- reliability problems
 
-| Service | Responsibility |
-|---|---|
-| User Service | authentication/profile |
-| Restaurant Service | menus/restaurants |
-| Order Service | order lifecycle |
-| Payment Service | payment handling |
-| Delivery Service | rider tracking |
-| Notification Service | SMS/email/push |
+A senior engineer does not ask:
 
-Each service should own **one domain** and have clear boundaries.
+```text
+"How can I optimize this loop?"
+```
 
----
+They ask:
 
-## 3) Inter-Service Communication
-
-When services are split, they must communicate.
-
-### Option A — REST (HTTP + JSON)
-
-Good for:
-
-- Simplicity
-- Public APIs
-- Frontend-to-backend communication
-
-Tradeoffs:
-
-- Larger payloads
-- Repeated requests
-- Slower for high-throughput internal calls
-
-### Option B — gRPC (binary + strongly typed)
-
-Good for:
-
-- Internal service-to-service communication at scale
-- High request volume (e.g., 10,000 calls/sec)
-- Lower latency and smaller payloads
-
-Tradeoffs:
-
-- Harder to debug manually
-- Browser usage is not as straightforward as REST
-- Requires IDL/tooling discipline (protobuf)
-
-### Option C — Message queues / event streaming (Kafka/RabbitMQ/SQS)
-
-Use when “do this now” becomes “publish an event, process later”.
-
-Why it matters (order placement example): you shouldn’t block the user response while waiting for payment, email, analytics, inventory, delivery allocation.
-
-Instead:
-
-- Create order (fast)
-- Publish `OrderCreated`
-- Other services react asynchronously
-
-Tradeoffs:
-
-- Eventual consistency
-- Duplicate events (retries)
-- Dead-letter queues
-- Ordering guarantees are hard
+```text
+"What is the actual bottleneck?"
+"Is the database slow?"
+"Is the network slow?"
+"Is the cache missing?"
+"Is scaling inefficient?"
+"Are we wasting infrastructure?"
+"Are users waiting too long?"
+```
 
 ---
 
-## 4) API Gateway Pattern
+## The Senior Research Framework (What/Why/How)
 
-### Problem
-
-Frontend should not call 20 internal services directly.
-
-### Solution
-
-Frontend calls **one** API gateway. The gateway routes internally.
-
-Common gateway responsibilities:
-
-| Responsibility | Why |
-|---|---|
-| Authentication | centralized |
-| Rate limiting | prevent abuse |
-| Routing | simplify client |
-| Logging/metrics | observability |
-| Caching | performance |
-
-Gateway is not “magic”; it’s a coordination tool that reduces frontend-backend integration chaos.
-
----
-
-## 5) Service Discovery (Research Topic)
-
-### Problem
-
-In microservices, instances scale up/down. Hardcoding hostnames breaks quickly.
-
-### Goal
-
-Service discovery answers: **“How does service A find service B right now?”**
-
-Common approaches:
-
-- DNS-based discovery (simple)
-- Registry-based discovery (services register themselves)
-- Platform-provided discovery (Kubernetes service abstraction)
-
-Key tradeoff: more dynamic systems reduce manual config but increase operational complexity.
-
----
-
-## 6) Database-per-Service Pattern
-
-### Beginner thought
-
-“One giant database shared by all services.”
-
-### Problem
-
-- Tight coupling
-- Schema conflicts
-- Coordinated deployments
-- One schema change breaks multiple teams
-
-### Correct pattern
-
-Each service owns its database or schema boundary.
-
-| Service | Database |
-|---|---|
-| Auth | users DB |
-| Orders | orders DB |
-| Payments | payments DB |
-
-Reason: independent evolution and scaling, and better ownership.
-
----
-
-## 7) REST API Design Best Practices
-
-### Resource naming
-
-Avoid verb-based endpoints:
-
-- Bad: `GET /getUsers`, `POST /createUser`
-- Good: `GET /users`, `POST /users`, `DELETE /users/{id}`
-
-HTTP method already encodes the action.
-
-### Proper HTTP methods
-
-| Method | Meaning |
-|---|---|
-| GET | read |
-| POST | create |
-| PUT | replace |
-| PATCH | partial update |
-| DELETE | remove |
-
-### Status codes (predictability matters)
-
-| Code | Meaning |
-|---|---|
-| 200 | success |
-| 201 | created |
-| 400 | bad request |
-| 401 | unauthorized |
-| 403 | forbidden |
-| 404 | not found |
-| 500 | server error |
-
-### Filtering + sorting (query params)
-
-Common patterns:
-
-- `GET /jobs?status=open&location=blr`
-- `GET /jobs?sort=-createdAt` (descending) or `sort=createdAt`
-
-Keep filters consistent, well-documented, and predictable.
-
-### Pagination
-
-Offset pagination:
-
-- Example: `GET /applications?page=2&limit=20`
-- Pros: easy
-- Cons: slow/unstable for very large datasets
-
-Cursor pagination:
-
-- Example: `GET /applications?after=job_9281&limit=20`
-- Pros: faster at scale, stable for infinite scroll
-- Cons: requires cursor design and careful ordering
-
-### API versioning (URL vs header)
-
-- URL versioning: `/v1/users`
-  - Pros: explicit, easy to debug
-  - Cons: can create version sprawl
-- Header-based versioning (e.g., `Accept: application/vnd.company.v2+json`)
-  - Pros: cleaner URLs
-  - Cons: harder to inspect/debug, tooling-dependent
-
-Main rule: version when you must break clients; avoid unnecessary churn.
-
-### HATEOAS (concept)
-
-HATEOAS is the idea that API responses include links/actions that describe valid next steps.
-
-In practice:
-
-- It can improve discoverability
-- Many teams do not implement it fully due to complexity
-
----
-
-# Industry Case Studies (Proof of Real-World Research)
-
-This section highlights **industry examples** to show the “senior engineer” learning approach:
+For each concept below, I framed my research as:
 
 - What problem existed?
 - Why did the older approach fail at scale?
-- What did the new solution solve?
-- What new problems did it introduce?
+- What does the new approach solve?
+- What new problems does it create?
 - Who uses it and under what conditions?
 
-These examples are intentionally chosen from companies that publish engineering learnings publicly.
-
-## Uber — Monolith → Microservices → “Microservices Chaos” → Domains (DOMA)
-
-- Problem: rapid growth (more cities, more traffic, more engineers) made a single codebase risky and slow
-- Why monolith struggled: deploy risk + scaling waste + team collisions
-- What microservices solved: service ownership + independent deploys + domain scaling
-- New problems created: service sprawl, dependency complexity, debugging difficulty without tracing
-- Industry takeaway: microservices are as much about **organizational scaling** as technical scaling
-
-## Meta (Facebook) — Why GraphQL exists
-
-- Problem: REST often caused overfetching/underfetching, especially painful for mobile clients and fast-evolving UIs
-- What GraphQL solved: client requests exactly the fields it needs, reducing waste and improving developer velocity for frontend teams
-- New problems created: caching becomes harder, query cost control is required, backend complexity increases (resolvers, tracing)
-- Industry takeaway: GraphQL is often a **frontend productivity** solution, not a “REST replacement” for all systems
-
-## Google — Why gRPC and reliability discipline matter
-
-- Problem: high-throughput internal service-to-service communication needs strong contracts and efficiency
-- What gRPC solved: smaller payloads, lower latency, typed contracts for internal APIs
-- New problems created: more tooling, harder human-debuggability, contract/versioning discipline becomes mandatory
-- Reliability lens: large-scale systems require systematic reliability practices (SLIs/SLOs, incident response, automation)
-
-## Netflix — Observability becomes mandatory in distributed systems
-
-- Problem: when a single user request crosses many services, “where did it fail?” becomes hard
-- What observability solved: logs + metrics + tracing make failures diagnosable and performance measurable
-- New problems created: data volume/cost, instrumentation effort, alert fatigue if done poorly
-- Industry takeaway: microservices without observability is a production failure waiting to happen
-
-## Amazon — Service-oriented thinking and gateway patterns
-
-- Problem: many teams + many capabilities → clients cannot coordinate dozens of internal services directly
-- What gateway layers solve: one entry point, centralized auth/rate limits, consistent policies, simplified client integration
-- New problems created: gateways can become bottlenecks and need careful scalability and governance
-- Organizational angle: “two-pizza team” style ownership reinforces domain boundaries and API contracts
-
-## Instagram — “Start simple, then evolve” (startup reality)
-
-- Problem: early-stage product needs speed; perfect architecture is less valuable than shipping
-- Common evolution: start with a monolith/modular monolith, then optimize hotspots (caching, async processing, read scaling)
-- Industry takeaway: early correctness is often “simple + maintainable,” not “distributed + modern”
-
-## Swiggy / Zomato — ETA and realtime logistics are business-critical
-
-- Problem: ETA accuracy affects trust, cancellations, and support load
-- Why the naive model fails: ETA is not `distance / speed`; real-world factors dominate
-- What modern systems use: realtime tracking, historical data, event streams, prediction models
-- New problems created: partial failures, noisy data, non-determinism, user perception when ETAs jump
+This proves practical understanding beyond “just tutorials”.
 
 ---
 
-# Day 26 — Advanced Topics: Alternative API Styles, Trends, Observability, Security
+## 1) Performance Reality: Most Slowness Is Data Movement
 
-## 1) Alternative API Styles (When to use each)
+The most important performance engineering truth:
 
-### REST
+Most systems are not slow because of CPU computation.
 
-Best default for:
+They are slow because of:
 
-- Public APIs
-- Simple CRUD
-- Broad client compatibility
+- database access
+- network latency
+- disk I/O
+- unoptimized queries
+- missing indexes
+- chatty APIs
+- poor caching
+- blocking operations
 
-### GraphQL
+So performance engineering is mostly:
 
-Why it exists:
+```text
+data movement optimization
+```
 
-- REST can cause overfetching/underfetching
-- Mobile/frontends often need field-level flexibility
+---
+
+## 2) Database Optimization (Queries + Plans)
+
+### Why databases become bottlenecks
+
+Databases are usually the first major bottleneck because almost every request touches them.
+
+Even “small” inefficiencies multiply:
+
+```text
+1 query = 5ms (fine)
+10 million queries/day (pain)
+```
+
+That becomes:
+
+- infrastructure cost
+- user latency
+- CPU pressure
+- connection exhaustion
+
+### What makes queries slow (typical causes)
+
+| Problem | Why it hurts |
+|---|---|
+| full table scans | checks every row |
+| missing indexes | slow lookups |
+| large joins | memory + CPU overhead |
+| returning unnecessary columns | network waste |
+| repeated queries | extra DB pressure |
+| unbounded pagination | massive scans |
+
+### Senior solution: use query plans, not guesses
+
+Use `EXPLAIN ANALYZE` to inspect reality:
+
+```sql
+EXPLAIN ANALYZE
+SELECT * FROM orders WHERE user_id = 5;
+```
+
+This reveals:
+
+- whether indexes are used
+- scan type
+- estimated cost vs actual time
+- rows scanned
+
+---
+
+## 3) Indexing Strategies (B-Tree/Hash/GIN + Tradeoffs)
+
+### Why indexes exist
+
+Without indexes, databases scan rows one-by-one.
+
+Example:
+
+```sql
+SELECT * FROM users WHERE email = 'abc@gmail.com';
+```
+
+With indexes, the DB can “jump” to matching rows.
+
+Analogy:
+
+- without index: reading the entire book to find one topic
+- with index: using the index page
+
+### Common index types (PostgreSQL-oriented)
+
+- B-Tree: best general-purpose index (equality, ranges, sorting)
+- Hash: equality lookups (less commonly used)
+- GIN: full-text search, JSONB, arrays
+
+Example:
+
+```sql
+CREATE INDEX idx_users_email ON users(email);
+```
+
+### The biggest indexing truth (tradeoff)
+
+Indexes speed up reads but hurt writes.
+
+Every insert/update must also update indexes.
+
+Senior rule:
+
+```text
+Index based on real query patterns, not guessing.
+```
+
+### Composite indexes
+
+Problem: queries often filter by multiple columns.
+
+```sql
+CREATE INDEX idx_orders_user_status ON orders(user_id, status);
+```
+
+Important: index order matters.
+
+### Covering indexes
+
+If the index contains all needed columns, the DB can answer directly from the index (less disk I/O).
+
+PostgreSQL example using `INCLUDE` (index supports filtering + returns extra columns without hitting the table):
+
+```sql
+CREATE INDEX idx_orders_user_created_include_total
+ON orders (user_id, created_at)
+INCLUDE (total_amount, status);
+```
+
+---
+
+## 4) ORM Pitfalls: The N+1 Query Problem
+
+### The problem
+
+Load 100 orders, and then for each order load customer data:
+
+```text
+1 + 100 queries
+```
+
+Works at small scale; destroys performance at scale.
+
+### Why it happens
+
+ORMs hide queries, so developers accidentally create hundreds of DB round trips.
+
+### Senior solutions
+
+- eager loading (fetch related data together)
+- batching (use `WHERE id IN (...)`)
+
+Senior question:
+
+```text
+"How many DB round trips exist in this request?"
+```
+
+---
+
+## 5) Join Optimization + Denormalization Tradeoffs
+
+### Why joins become slow
+
+Large joins are expensive, especially:
+
+- unindexed join columns
+- wide tables
+- nested joins
+
+### Optimization strategies
+
+| Strategy | Benefit |
+|---|---|
+| index join columns | faster matching |
+| select fewer columns | less memory/network |
+| denormalize carefully | fewer joins |
+| materialized views | precomputed results |
+
+Tradeoff:
+
+- normalization improves consistency
+- denormalization improves speed
+
+Real systems balance both.
+
+---
+
+## 6) Pagination Performance (Offset vs Cursor)
+
+### Offset pagination
+
+```sql
+LIMIT 20 OFFSET 10000
+```
+
+Problem: DB still scans skipped rows → large offsets become slow.
+
+### Cursor pagination
+
+```sql
+WHERE id > 5000
+LIMIT 20
+```
+
+Faster at scale. Common in social feeds and infinite scroll.
+
+---
+
+## 7) Search at Scale (DB Full-Text vs Search Engines)
+
+### Why `LIKE '%term%'` fails
+
+```sql
+WHERE title LIKE '%backend%'
+```
+
+Very slow and hard to scale.
+
+### Senior solutions
+
+- database full-text search (e.g., PostgreSQL + GIN)
+- external search engines (Elasticsearch/OpenSearch/Solr)
+
+PostgreSQL full-text example (illustrative):
+
+```sql
+-- 1) Create a tsvector (either computed on the fly or stored)
+-- Stored column approach:
+ALTER TABLE articles
+ADD COLUMN search_vector tsvector;
+
+UPDATE articles
+SET search_vector = to_tsvector('english', coalesce(title,'') || ' ' || coalesce(body,''));
+
+-- 2) Index it with GIN
+CREATE INDEX idx_articles_search_vector
+ON articles USING GIN (search_vector);
+
+-- 3) Query using tsquery
+SELECT id, title
+FROM articles
+WHERE search_vector @@ plainto_tsquery('english', 'backend optimization');
+```
+
+Tradeoff:
+
+- external search adds operational overhead but scales better as search becomes specialized.
+
+---
+
+## 8) Connection Pooling (Why Systems Collapse Without It)
+
+Opening DB connections is expensive.
+
+If every request opens a new connection, systems collapse under load.
+
+Pooling:
+
+- reuses connections
+- reduces latency
+- prevents connection exhaustion
+
+Common production approach for Postgres:
+
+- app-level pool (via your ORM/driver)
+- or a dedicated pooler like PgBouncer (reduces DB connection churn)
+
+---
+
+## 9) Caching & Redis (Patterns, Invalidation, Stampedes)
+
+### Why caching exists
+
+Repeated identical DB queries waste resources.
+
+Typical impact:
+
+```text
+DB query ~50ms
+Redis cache ~1ms
+```
+
+### Common cache patterns
+
+**Cache-aside** (most common):
+
+```text
+check cache → miss → query DB → store in cache
+```
+
+**Write-through**:
+
+```text
+application → cache → database
+```
+
+### The hardest part: cache invalidation
+
+Stale cache creates real business bugs (wrong plans, wrong statuses, wrong pricing).
+
+### Cache stampede
+
+When cache expires and a traffic spike arrives, thousands of requests hit DB simultaneously.
+
+Prevention strategies:
+
+- staggered expiration
+- distributed locks (one request rebuilds cache)
+- background refresh
+
+### When not to cache
+
+Avoid caching:
+
+- rapidly changing critical data
+- highly volatile personalized state
+- security-sensitive temporary state
+
+---
+
+## 10) Scaling (Vertical vs Horizontal) + Load Balancing
+
+### Vertical scaling
+
+Bigger server (more CPU/RAM). Easy initially, but hits limits.
+
+### Horizontal scaling
+
+More servers + distribute traffic. Harder operationally, but scales further.
+
+### Load balancing
+
+Problem: one server overloaded while others idle.
+
+Load balancing distributes traffic for:
+
+- availability
+- utilization
+- fault tolerance
+
+Common strategies:
+
+| Strategy | Description |
+|---|---|
+| round robin | rotate requests |
+| least connections | send to least busy |
+| IP hash | same user → same server |
+
+Sticky sessions are useful for session state and WebSockets, but reduce flexibility.
+
+---
+
+## 11) Replication & Sharding (When Data Scaling Becomes Necessary)
+
+### Replication
+
+Master handles writes; replicas serve reads.
+
+Benefit: read scaling + redundancy.
+
+New problem: replication lag → eventual consistency.
+
+### Sharding
+
+Split data across databases when one DB cannot handle size/traffic.
+
+Example:
+
+```text
+Users A–M → shard 1
+Users N–Z → shard 2
+```
+
+Hard parts:
+
+- cross-shard queries
+- rebalancing
+- operational complexity
+
+Use only at very large scale.
+
+---
+
+## 12) Application-Level Optimization (Measure First, Then Optimize)
+
+Senior rule:
+
+```text
+Measure first. Optimize second.
+```
+
+Use profilers to measure:
+
+- slow functions
+- memory usage
+- CPU bottlenecks
+
+Common Python tools (pick based on what you need to prove):
+
+- `cProfile` / `pstats` (baseline CPU profiling)
+- `py-spy` (sampling profiler; good for production-like runs)
+- `scalene` (CPU + memory + native time)
+- `tracemalloc` (memory allocation tracking)
+
+Workflow:
+
+1. reproduce the slowness with a realistic workload
+2. profile to find top hotspots
+3. optimize the bottleneck (algorithm, I/O, DB calls, batching)
+4. re-run the same workload and compare numbers
+
+---
+
+## 13) Asynchronous Processing (Responsiveness at Scale)
+
+Do not block user requests for slow tasks.
+
+Example:
+
+- Bad: upload resume → wait 30s AI analysis
+- Good: upload resume → queue job → respond immediately
+
+Async processing improves responsiveness and protects latency SLOs.
+
+---
+
+## 14) CDN + Compression (Latency and Bandwidth Engineering)
+
+Distance creates latency.
+
+CDNs cache static assets globally (images, JS, CSS, video).
 
 Benefits:
 
-- Client can request exactly the fields needed
+- lower latency
+- reduced origin traffic
+- improved scalability
 
-Costs:
+Also:
 
-- Caching becomes harder
-- Backend complexity grows (resolvers, query planning)
-- Dangerous queries are possible (needs query depth/complexity controls)
+- image optimization (resize + compress + modern formats like WebP/AVIF)
+- response compression (gzip/Brotli)
+
+---
+
+## 15) Monitoring & Observability (Tools + Why They Matter)
+
+Without monitoring, production failures become:
+
+```text
+"system slow"
+```
+
+With observability, engineers can identify:
+
+```text
+which service / query / endpoint / dependency
+```
+
+Tools mentioned in research:
+
+- Prometheus (metrics)
+- Grafana (dashboards)
+- ELK stack (log collection + search + visualization)
+- APM tools (New Relic / Datadog) for tracing, alerts, performance insights
+
+---
+
+## 16) API Styles and Realtime Tradeoffs (REST/GraphQL/gRPC/WebSockets/SSE)
+
+### REST
+
+- Best for: public APIs and broad compatibility
+- Tradeoff: overfetching/underfetching, multiple calls
+
+### GraphQL
+
+- Problem it solves: frontend requests exactly required fields (mobile + UI velocity)
+- New problems: caching complexity, query cost controls, backend complexity
 
 ### gRPC
 
-Best for:
-
-- High-throughput internal calls
-- Strong typing + contracts between services
+- Problem it solves: efficient internal service-to-service communication
+- New problems: tooling/IDL discipline, harder human debugging
 
 ### WebSockets vs SSE
 
-Normal HTTP is request → response → closed.
+- WebSockets: two-way realtime (chat, collaboration)
+- SSE: one-way server push (dashboards, streaming responses)
 
-When you need realtime:
-
-- WebSockets: two-way realtime (chat, multiplayer games, collaborative tools)
-- SSE (Server-Sent Events): one-way server push (notifications, dashboards, streaming responses)
-
-WebSockets tradeoffs:
-
-- Millions of open connections cost memory
-- Reconnect handling is hard on mobile networks
-- Load balancing often needs sticky sessions/connection affinity
-
-SSE tradeoffs:
-
-- One-way only
-- Still requires connection management, but simpler than WebSockets
+Polling fails at scale due to waste (bandwidth, battery, server load), but WebSockets introduce connection management and load-balancing complexity.
 
 ---
 
-## 2) Emerging Backend Trends (Research Topics)
+## 17) Security for Production APIs (OWASP + Practical Controls)
 
-### Serverless architecture
+Security must be designed in, not “added later”.
 
-- Why it exists: infrastructure management is painful; teams want faster deployment and autoscaling
-- Tradeoffs: cold starts, vendor lock-in, observability and debugging complexity
-
-### Edge computing
-
-- Why it exists: reduce latency by running code closer to users
-- Tradeoffs: distributed runtime limitations, state/data consistency challenges
-
-### JAMstack
-
-- Why it exists: push work to CDN/static + call APIs for dynamic pieces
-- Tradeoffs: backend still exists (APIs), auth and dynamic workflows require careful design
-
-### Backend-as-a-Service (BaaS)
-
-- Why it exists: speed for prototypes/teams that don’t want to build everything
-- Tradeoffs: platform constraints, lock-in, cost at scale
-
-### Low-code / no-code backends
-
-- Why it exists: faster internal tools
-- Tradeoffs: limited control, performance constraints, security/governance risks
-
----
-
-## 3) Observability (Logging vs Monitoring vs Tracing)
-
-Observability becomes mandatory as systems distribute.
-
-### Logging
-
-Records events:
-
-- “User login failed”
-- “Payment timeout”
-
-### Monitoring
-
-Tracks system health:
-
-- CPU/memory
-- request rate
-- error rate
-- latency
-
-### Tracing (distributed tracing)
-
-Tracks a single request across services:
-
-Frontend → Gateway → Order → Payment → Notification
-
-### APM + metrics + alerting (research targets)
-
-- APM (Application Performance Monitoring): helps detect slow transactions, errors, bottlenecks
-- Metrics collection: consistent measurements for SLO/SLA thinking
-- Alerting strategies:
-  - alert on symptoms (error rate/latency) not just on CPU
-  - avoid noisy alerts; route to the right owner
-
-Without observability, production failures become “system failing, nobody knows where”.
-
----
-
-## 4) Security Deep Dive
-
-### OWASP Top 10 (high-level)
-
-OWASP publishes the most common web app risk categories. A practical “memorize the names” list (keep it high-level; the real skill is applying it):
+OWASP Top 10 (high-level categories):
 
 - Broken access control
-- Cryptographic failures (sensitive data exposure, weak encryption)
-- Injection (SQL/NoSQL/command injection, etc.)
+- Cryptographic failures
+- Injection
 - Insecure design
 - Security misconfiguration
 - Vulnerable and outdated components
 - Identification and authentication failures
-- Software and data integrity failures (supply chain, unsafe deserialization patterns)
+- Software and data integrity failures
 - Security logging and monitoring failures
-- Server-Side Request Forgery (SSRF)
+- SSRF
 
-### API security best practices (practical checklist)
+Practical controls:
 
-- Strong authentication and authorization (principle of least privilege)
-- Input validation + safe query practices
-- Rate limiting + abuse detection
-- Use TLS everywhere
-- Secure defaults; don’t leak internal errors
-- Audit logs for security events
-
-### Zero Trust architecture
-
-Assumption: trust nobody automatically; verify everything.
-
-Even internal services should authenticate/authorize calls.
-
-### Secret management
-
-- Bad: hardcoding secrets in source code
-- Better: environment variables
-- Best at scale: secret managers / vault systems
-
-### Penetration testing basics (research goal)
-
-- Understand how attackers think (threat modeling)
-- Test auth boundaries, input validation, and common misconfigurations
-- Learn safe tooling and responsible testing practices
+- authentication + authorization (least privilege)
+- input validation + safe query practices
+- rate limiting + abuse detection
+- TLS everywhere
+- secrets management (env vars / secret managers; no hardcoding)
+- audit logs for security events
 
 ---
 
-## 5) Caching & Redis (Why it exists + what makes it hard)
+## Practice Plan (Hands-On Optimizations)
 
-### Why caching becomes necessary
+This section is the actionable implementation plan for the Day 26 tasks.
 
-At scale, databases become bottlenecks.
+### A) Pick a workload + define success criteria
 
-Example scenario:
+Choose 1–2 endpoints/queries that represent real usage (examples: feed, orders list, search, profile page).
 
-- Homepage loads millions of times/day
-- Hitting PostgreSQL on every request becomes expensive and increases latency
+Define measurable targets (pick what makes sense):
 
-### Redis (typical uses)
+- p95 latency (e.g., reduce by 30–50%)
+- throughput (RPS)
+- DB load (CPU, I/O, active connections)
+- error rate/timeouts
+- cost (if applicable)
 
-Redis is commonly used for:
+### B) Baseline measurement (before)
 
-- Sessions
-- Caching hot data
-- Rate limiting counters
-- Temporary state / coordination
+Capture **before** metrics so improvements are real, not guessed.
 
-### The hardest part: cache invalidation
+- App timing: request duration, slow endpoints
+- DB timing: slow query log / query stats
+- For a slow query: run `EXPLAIN (ANALYZE, BUFFERS)` (Postgres)
 
-Caching is easy.
+Template to fill in:
 
-Keeping cache correct is hard.
+```text
+Workload:
+Baseline date/time:
 
-Classic failure mode:
+Latency:
+  p50:
+  p95:
+  p99:
+Throughput (RPS):
+Errors/timeouts:
 
-- Job/application status changes
-- Cache still serves old data
-- Users see stale information (real business bug)
+DB:
+  CPU:
+  active connections:
+  top slow query:
 
-This is why “cache invalidation” is considered one of the hardest practical problems in backend engineering.
+Notes:
+```
 
----
+### C) Database query optimization loop
 
-## 6) Realtime at Scale: Polling vs WebSockets (WhatsApp-style lens)
+Use this loop per query:
 
-Most tutorials stop at: “WebSockets are realtime.”
+1. Reduce data scanned (filters, pagination strategy)
+2. Reduce data returned (select only needed columns)
+3. Add the *right* index (based on real predicate + ordering)
+4. Re-check plan and measure again
 
-The more useful question is: **why polling fails at scale**.
+Before/after evidence template (recommended for deliverable):
 
-If a chat app used polling ("Any new message?") every few seconds:
+```sql
+-- Query
+SELECT ...
 
-- bandwidth waste (requests even when nothing changed)
-- server overload (infrastructure cost)
-- battery drain (bad mobile UX)
-- delayed messages (poor realtime feel)
+-- BEFORE: paste your EXPLAIN ANALYZE output here
 
-WebSockets solve this with a persistent connection, but introduce new pain:
+-- Change made:
+-- 1) query rewrite OR 2) index added OR 3) schema adjustment
 
-- millions of open connections (memory pressure)
-- reconnect handling (mobile networks are unstable)
-- load balancing complexity (often needs connection affinity)
+-- AFTER: paste your new EXPLAIN ANALYZE output here
+```
 
----
+### D) Add connection pooling
 
-## 7) ETA Systems (Swiggy/Uber-style delivery thinking)
+Goal: avoid per-request connection creation and prevent DB exhaustion.
 
-ETA is not just engineering; it’s business-critical.
+Checklist:
 
-### Why ETA matters
+- confirm the app reuses connections (pool enabled)
+- set pool size based on DB limits and concurrency
+- set timeouts (connect/read) so failures degrade gracefully
 
-Accurate ETA impacts:
+Measurement idea:
 
-- user trust
-- cancellations
-- support tickets
-- retention
+- compare DB connection counts under load before vs after
 
-### Why ETA is hard
+### E) Add query result caching (carefully)
 
-ETA is not simply `distance / speed`.
+Start with cache-aside for expensive, frequently repeated reads.
 
-Real factors include:
+Checklist:
 
-- restaurant preparation time
-- rider availability / assignment delay
-- traffic congestion
-- rain/weather
-- apartment security/waiting time
-- batching (one rider delivering multiple orders)
-- festivals/high demand periods
+- pick stable keys (e.g., `user:{id}:profile:v1`)
+- choose TTL intentionally (avoid “forever”)
+- define invalidation triggers
+- add stampede prevention for hot keys
 
-### What real systems use
+Evidence template:
 
-- realtime GPS
-- historical delivery data
-- traffic APIs
-- ML prediction models
-- event streams for live updates
+```text
+Cached item:
+Cache key pattern:
+TTL:
+Invalidation approach:
+Stampede prevention:
+Before vs after DB QPS:
+Before vs after p95 latency:
+```
 
----
+### F) Re-measure and summarize
 
-## 8) Microservices at Extreme Scale: Uber → “Microservices Chaos” → DOMA
+Your final write-up should include:
 
-Architecture evolves; it doesn’t appear magically.
-
-### Phase 1: monolith (early Uber)
-
-When the team and user base are small, a monolith is effective:
-
-- one deployable app
-- one primary database
-- faster iteration
-
-### Phase 2: microservices (growth)
-
-As Uber scaled globally (more engineers, more traffic, more product surface area), the monolith pain increased:
-
-- deployment risk (one change can break unrelated flows)
-- team collisions (many teams editing shared systems)
-- scaling waste (scale everything even if only one domain is hot)
-
-So services were split by business domains (trip, pricing, matching, payments, notifications, maps, fraud, ETA, etc.).
-
-### Phase 3: thousands of services create new pain
-
-At very high service counts, new distributed-systems chaos appears:
-
-- unclear ownership (“who owns what?”)
-- dependency explosion (“who calls whom?”)
-- debugging failures without tracing becomes a nightmare
-- operational overhead increases significantly
-
-### DOMA (Domain-Oriented Microservice Architecture)
-
-Uber describes grouping services into domains to reduce chaos and improve clarity/ownership.
-
-Key lesson:
-
-- microservices solve **organizational scaling** as much as technical scaling
-- no architecture is final—each solves one pain while creating another
+- what changed
+- why it helped
+- what tradeoff it introduced
+- measured before/after
 
 ---
 
-## 9) How Senior Engineers Estimate Systems (before choosing architecture)
+## Optimization Guide (Checklists + Decision Tree)
 
-Before tools, ask scale questions:
+This section is the “guide deliverable”: something you can reuse in future projects.
 
-- How many users?
-- Peak requests/sec? (not average)
-- Realtime needed?
-- Latency requirements?
-- Storage growth over time?
-- Failure tolerance? (what must never fail?)
-- Cost constraints? (especially for AI workloads)
+### 1) Database optimization checklist
 
-Simple rule-of-thumb framing:
+- Confirm the slow part is DB (not network, cache misses, external APIs)
+- Identify top slow queries (real production-like workload)
+- For each slow query:
+  - run `EXPLAIN ANALYZE` (and `BUFFERS` in Postgres)
+  - check for sequential scans on large tables
+  - ensure filters match indexable predicates
+  - avoid `SELECT *` on hot paths
+  - reduce N+1 patterns by batching/eager-loading
+- Validate that improvements are measurable (latency and DB load)
 
-- Small startup: modular monolith + PostgreSQL + Redis + REST can be “enough”
-- Large scale: microservices + queues/streams + gRPC + distributed tracing + multi-database patterns become more reasonable
+### 2) Index creation strategy (document template)
 
-Interview maturity signal:
+Use this table as your “index strategy document”:
 
-- not “Explain Kubernetes deeply”
-- but “What tradeoffs exist, and at what scale do they matter?”
+| Query / endpoint | Access pattern | Proposed index | Why this index | Write overhead risk | Verification (plan/benchmark) |
+|---|---|---|---|---|---|
+| `/orders?user_id=...&status=...` | filter + sort | `(user_id, status, created_at)` | supports predicate + ordering | medium | paste EXPLAIN + p95 |
 
----
+Rules of thumb (practical, not absolute):
 
-# The 6-Questions Framework (How to Learn Like a Senior Engineer)
+- Indexes are not free: they increase write cost and storage, and can bloat.
+- Create indexes based on observed query patterns.
+- Composite index order matters (leftmost prefix rule).
+- Covering indexes help when you consistently fetch a small set of columns.
+- Avoid indexing low-selectivity columns alone (e.g., booleans) unless combined.
 
-For every backend concept, ask:
+### 3) Cache decision tree
 
-| Question | What it forces you to learn |
-|---|---|
-| What problem existed before this? | origin pain |
-| Why did the older solution fail? | limitation |
-| What does this solve? | benefit |
-| What new problems does it create? | tradeoff |
-| Which companies use this and why? | practical reality |
-| At what scale does it become necessary? | engineering judgment |
+Use this to decide whether caching is appropriate.
 
-This converts “definitions” into real-world engineering thinking.
+```mermaid
+flowchart TD
+  A[Is the read expensive and frequent?] -->|No| Z[Don't cache]
+  A -->|Yes| B[Is correctness/recency strict?]
+  B -->|Yes| C[Can you invalidate reliably on writes?]
+  C -->|No| Z
+  C -->|Yes| D[Cache-aside with short TTL + invalidation]
+  B -->|No| E[Can you tolerate staleness?]
+  E -->|No| D
+  E -->|Yes| F[Cache-aside with TTL]
+  D --> G[Add stampede protection for hot keys]
+  F --> G
+```
 
----
+Stampede prevention options:
 
-# Comparison Matrices (Templates)
+- jittered TTLs (randomized expiration)
+- single-flight rebuild (lock so only one request recomputes)
+- background refresh
 
-These were part of the original deliverables; templates below make it easier to fill in.
+### 4) Performance monitoring setup (basic)
 
-## 1) Monolith vs Microservices
+Minimum viable observability for optimization work:
 
-| Dimension | Monolith | Microservices |
-|---|---|---|
-| Team size fit | small | medium/large |
-| Deployment risk | one deploy affects all | isolated deploys |
-| Scaling | scale whole app | scale per service |
-| Complexity location | inside codebase | in the network + ops |
-| Debuggability | simpler | harder without tracing |
+- Metrics (Prometheus)
+  - request count, latency buckets (p50/p95/p99), error rate
+  - DB connection usage, DB query duration (if instrumented)
+- Dashboards (Grafana)
+  - endpoint latency by route
+  - top erroring endpoints
+  - DB saturation indicators
+- Logs (ELK)
+  - structured request logs (request id, user id if safe, duration)
+  - slow query logs (or references to query IDs)
+- APM (New Relic / Datadog)
+  - distributed tracing across services/dependencies
 
-## 2) REST vs GraphQL vs gRPC
+### 5) Scaling strategy recommendations
 
-| Dimension | REST | GraphQL | gRPC |
-|---|---|---|---|
-| Best for | public APIs, CRUD | frontend flexibility | internal high-throughput |
-| Human debuggable | yes | medium | low |
-| Caching | straightforward | harder | depends on tooling |
-| Contract strictness | medium | schema-based | strong (proto) |
-| Common risks | overfetching | expensive queries | tooling complexity |
+Use this as a quick proposal template.
 
-## 3) SQL vs NoSQL (scenario-based)
+```text
+Current bottleneck (measured):
 
-| Need | Often fits |
-|---|---|
-| Strong consistency + relational queries | SQL |
-| Flexible schema + horizontal scaling patterns | NoSQL |
+Near-term:
+  - Vertical scale: (what resource, why, expected gain)
+  - Query/index fixes: (top 2 changes)
+  - Caching: (what, TTL, invalidation)
 
-## 4) Authentication methods
+Mid-term:
+  - Horizontal scale: (stateless app, autoscaling, LB strategy)
+  - Sticky sessions needed? (yes/no + why)
+  - Replication plan: (read replicas, lag handling)
 
-| Method | Typical use |
-|---|---|
-| Sessions | web apps with server-side session state |
-| JWT | stateless APIs, mobile apps |
-| OAuth2/OIDC | third-party login + delegated access |
-
----
-
-# System Design Exercise: Food Delivery (Microservices Breakdown)
-
-This exercise was explicitly part of the original task. The goal is not drawing boxes—it’s defining **boundaries, data, and contracts**.
-
-## 1) Choose service boundaries (business capabilities)
-
-Suggested starting set:
-
-- User Service
-- Restaurant Service
-- Order Service
-- Payment Service
-- Delivery Service
-- Notification Service
-
-## 2) Data strategy (database-per-service)
-
-- Each service owns its data
-- Cross-service reads happen via APIs or events (not direct DB access)
-
-## 3) API contracts (examples)
-
-### Order service (REST)
-
-- `POST /orders` (create order)
-- `GET /orders/{id}` (retrieve)
-
-### Event flow (async)
-
-- Order Service publishes `OrderCreated`
-- Payment Service consumes → publishes `PaymentAuthorized` or `PaymentFailed`
-- Notification Service consumes and sends updates
-
-## 4) Operational requirements
-
-- API Gateway in front
-- Observability (logs + metrics + tracing) from day 1 if it’s distributed
-- Security (auth, rate limits, secrets) as a design constraint, not an afterthought
+Long-term (only if required):
+  - Sharding triggers: (data size, write throughput, hot partitions)
+  - Shard key choice:
+  - Cross-shard query strategy:
+```
 
 ---
 
-# Deliverables Checklist
+## Industry Case Studies (How Big Systems Think)
 
-From the original Days 25–26 deliverables list:
+These examples show this is researched as real-world architecture, not just definitions.
 
-- Research presentation on microservices
-- API design best practices document
-- System architecture design for a complex application (e.g., food delivery)
-- Comparison matrices for different technologies
-- Trend analysis report
-- Security checklist for APIs
-- README summarizing learnings (this file)
+### Netflix — observability and distributed debugging
+
+When one request crosses many services, “where did it fail?” requires logs + metrics + tracing.
+
+### Meta — GraphQL for frontend productivity
+
+GraphQL addresses overfetching/underfetching and fast-evolving UI needs, but demands query cost controls and careful caching.
+
+### Google — gRPC + reliability discipline
+
+Internal typed RPC contracts help at high throughput; reliability practices (SRE thinking) make systems operable.
+
+### Amazon — load balancing + gateways + scale engineering
+
+Gateways centralize policy (auth, rate limits) and reduce client complexity, but must be scaled and governed.
+
+### Swiggy/Zomato — ETA is business-critical
+
+ETA is not `distance/speed`; real systems combine realtime tracking + historical data + prediction models + event updates.
 
 ---
 
-# Sources Mentioned in Notes
+## Final Takeaways
 
-These links were referenced in the original notes (kept here as a bibliography). Some include community discussion threads.
+- Performance engineering is latency/throughput/cost/reliability engineering.
+- Premature optimization is dangerous; optimize measured bottlenecks.
+- Most bottlenecks are data movement problems (DB/network/cache), not CPU loops.
+- Every solution (indexes, caching, replication, microservices) introduces new problems.
 
-- Uber engineering blog on microservice architecture / DOMA:
-  - https://www.uber.com/blog/microservice-architecture/
-  - https://www.uber.com/en-GB/blog/microservice-architecture/
-  - https://www.uber.com/en-NG/blog/microservice-architecture/
-- GraphQL (origin + concepts):
-  - https://graphql.org/
-- gRPC (concepts + tooling):
-  - https://grpc.io/
-- Google SRE (reliability mindset + practices):
-  - https://sre.google/books/
-- Netflix engineering (distributed systems + observability patterns):
-  - https://netflixtechblog.com/
-- AWS API Gateway (gateway pattern reference):
-  - https://docs.aws.amazon.com/apigateway/
-- Community discussions (used as “what people observe in the wild”):
-  - https://www.reddit.com/r/SoftwareEngineering/comments/1t57wzy/microservices_for_everything_trend_almost_killed/
-  - https://www.reddit.com/r/developersIndia/comments/189xz1d/
-  - https://www.reddit.com/r/swiggy/comments/1puo49o/swiggys_eta_calculation_is_laughable/
-- Observability talk referenced:
-  - https://www.youtube.com/watch?v=uYDciwTJJiI
+---
+
+## Sources
+
+- gRPC: https://grpc.io/
+- GraphQL: https://graphql.org/
+- Google SRE books: https://sre.google/books/
+- Netflix Tech Blog: https://netflixtechblog.com/
+- AWS API Gateway docs: https://docs.aws.amazon.com/apigateway/
+- PostgreSQL EXPLAIN: https://www.postgresql.org/docs/current/using-explain.html
+- PostgreSQL Indexes: https://www.postgresql.org/docs/current/indexes.html
+- PgBouncer: https://www.pgbouncer.org/
+- Redis (caching concepts + commands): https://redis.io/
